@@ -1,130 +1,153 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/fraunces";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  TuneTrack — "The Crate-Digger's Shop"
+  Palette is committed, not themeable: the shop is always dim and warm,
+  the way a used-record store is always dim and warm regardless of who's browsing.
+*/
+
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  --font-sans: 'Geist Variable', sans-serif;
+  --font-heading: 'Fraunces Variable', serif;
+  --font-mono: 'Geist Mono Variable', monospace;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --color-shop-oxblood: var(--shop-oxblood);
+  --color-shop-oxblood-dim: var(--shop-oxblood-dim);
+  --color-shop-ink: var(--shop-ink);
+  --color-shop-paper: var(--shop-paper);
+  --color-shop-paper-dim: var(--shop-paper-dim);
+  --color-shop-amber: var(--shop-amber);
+  --color-shop-brass: var(--shop-brass);
+  --color-shop-vinyl: var(--shop-vinyl);
+  --color-shop-vinyl-groove: var(--shop-vinyl-groove);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.3);
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-}
+  --radius: 0.4rem;
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  /* Sodium-lamp shop lighting — near-black warm ink as the room, oxblood as the fixtures */
+  --shop-ink: oklch(0.16 0.017 55);
+  --shop-oxblood: oklch(0.32 0.1 24);
+  --shop-oxblood-dim: oklch(0.24 0.075 22);
+  --shop-paper: oklch(0.93 0.02 85);
+  --shop-paper-dim: oklch(0.86 0.025 80);
+  --shop-amber: oklch(0.75 0.13 65);
+  --shop-brass: oklch(0.64 0.09 70);
+  --shop-vinyl: oklch(0.12 0.005 60);
+  --shop-vinyl-groove: oklch(0.22 0.008 60);
+
+  --background: var(--shop-ink);
+  --foreground: var(--shop-paper);
+  --card: oklch(0.2 0.025 40);
+  --card-foreground: var(--shop-paper);
+  --popover: oklch(0.185 0.025 40);
+  --popover-foreground: var(--shop-paper);
+  --primary: var(--shop-amber);
+  --primary-foreground: oklch(0.16 0.02 50);
+  --secondary: oklch(0.26 0.03 35);
+  --secondary-foreground: var(--shop-paper);
+  --muted: oklch(0.24 0.02 40);
+  --muted-foreground: oklch(0.68 0.03 65);
+  --accent: var(--shop-oxblood);
+  --accent-foreground: var(--shop-paper);
+  --destructive: oklch(0.5 0.16 25);
+  --destructive-foreground: oklch(0.95 0.02 60);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--shop-amber);
+  --sidebar: oklch(0.185 0.025 40);
+  --sidebar-foreground: var(--shop-paper);
+  --sidebar-primary: var(--shop-amber);
+  --sidebar-primary-foreground: oklch(0.16 0.02 50);
+  --sidebar-accent: oklch(0.26 0.03 35);
+  --sidebar-accent-foreground: var(--shop-paper);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--shop-amber);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
+
   body {
     @apply bg-background text-foreground;
-    }
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% -10%, oklch(0.32 0.06 40 / 0.55), transparent 60%),
+      repeating-linear-gradient(
+        0deg,
+        oklch(1 0 0 / 0.012) 0px,
+        oklch(1 0 0 / 0.012) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    background-attachment: fixed;
+  }
+
   html {
     @apply font-sans;
-    }
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-heading;
+    font-optical-sizing: auto;
+  }
+}
+
+@layer utilities {
+  /* subtle paper grain used on sleeve/card labels */
+  .bg-grain {
+    background-image: radial-gradient(oklch(0 0 0 / 0.05) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+
+  .text-catalog {
+    font-family: var(--font-mono);
+    letter-spacing: 0.03em;
+  }
+
+  .shelf-lip {
+    box-shadow:
+      0 1px 0 oklch(1 0 0 / 0.06),
+      0 18px 24px -18px oklch(0 0 0 / 0.6);
+  }
 }
