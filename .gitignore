@@ -10,3 +10,5 @@ dist/
 .mint/sessions/
 .mint/verdicts/
 scratchpad/
+
+/src/generated/prisma
