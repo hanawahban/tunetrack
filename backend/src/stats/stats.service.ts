@@ -5,9 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 export class StatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async topArtists(limit = 10) {
+  async topArtists(userId: number, limit = 10) {
     const counts = await this.prisma.scrobble.groupBy({
       by: ['trackId'],
+      where: { userId },
       _count: { trackId: true },
     });
     if (counts.length === 0) {
