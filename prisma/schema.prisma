@@ -11,3 +11,55 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Artist {
+  id        Int      @id @default(autoincrement())
+  name      String
+  albums    Album[]
+  createdAt DateTime @default(now())
+}
+
+model Album {
+  id          Int      @id @default(autoincrement())
+  title       String
+  releaseYear Int?
+  artist      Artist   @relation(fields: [artistId], references: [id])
+  artistId    Int
+  tracks      Track[]
+  createdAt   DateTime @default(now())
+}
+
+model Track {
+  id        Int        @id @default(autoincrement())
+  title     String
+  album     Album      @relation(fields: [albumId], references: [id])
+  albumId   Int
+  scrobbles Scrobble[]
+  createdAt DateTime   @default(now())
+}
+
+enum Role {
+  ADMIN
+  CURATOR
+  LISTENER
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  role      Role       @default(LISTENER)
+  scrobbles Scrobble[]
+  createdAt DateTime   @default(now())
+}
+
+model Scrobble {
+  id       Int      @id @default(autoincrement())
+  user     User     @relation(fields: [userId], references: [id])
+  userId   Int
+  track    Track    @relation(fields: [trackId], references: [id])
+  trackId  Int
+  playedAt DateTime @default(now())
+
+  @@index([userId, playedAt])
+}
