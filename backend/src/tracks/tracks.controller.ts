@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { TracksService } from './tracks.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
@@ -19,6 +20,7 @@ import { Role } from '../generated/prisma/enums';
 
 @Controller('tracks')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class TracksController {
   constructor(private tracksService: TracksService) {}
 

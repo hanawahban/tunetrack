@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
@@ -19,6 +20,7 @@ import { Role } from '../generated/prisma/enums';
 
 @Controller('artists')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class ArtistsController {
   constructor(private artistsService: ArtistsService) {}
 

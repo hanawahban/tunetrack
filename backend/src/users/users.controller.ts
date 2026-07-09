@@ -1,4 +1,5 @@
 import { Body, Controller, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -8,6 +9,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

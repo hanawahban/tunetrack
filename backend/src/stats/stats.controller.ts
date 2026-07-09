@@ -1,10 +1,12 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { StatsService } from './stats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('stats')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class StatsController {
   constructor(private statsService: StatsService) {}
 
