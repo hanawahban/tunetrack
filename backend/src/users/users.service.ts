@@ -10,11 +10,12 @@ const SAFE_SELECT = { id: true, email: true, role: true, createdAt: true };
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto) {
+    const password = await bcrypt.hash(dto.password, 10);
     return this.prisma.user.create({
       data: {
         email: dto.email,
-        password: bcrypt.hashSync(dto.password, 10),
+        password,
       },
       select: SAFE_SELECT,
     });
