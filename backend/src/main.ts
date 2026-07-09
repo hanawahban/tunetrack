@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -19,6 +21,10 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, swaggerDocument, {
     swaggerOptions: { persistAuthorization: true },
   });
+
+  const docsDir = join(process.cwd(), 'docs');
+  mkdirSync(docsDir, { recursive: true });
+  writeFileSync(join(docsDir, 'openapi.json'), JSON.stringify(swaggerDocument, null, 2));
 
   await app.listen(process.env.PORT ?? 3000);
 }
