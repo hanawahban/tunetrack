@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
+import { UpdateAlbumDto } from './dto/update-album.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -43,7 +44,7 @@ export class AlbumsController {
   @Roles(Role.ADMIN, Role.CURATOR)
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: Partial<CreateAlbumDto>,
+    @Body() dto: UpdateAlbumDto,
   ) {
     return this.albumsService.update(id, dto);
   }

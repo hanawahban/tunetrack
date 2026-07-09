@@ -23,6 +23,7 @@ model Album {
   id          Int      @id @default(autoincrement())
   title       String
   releaseYear Int?
+  imageUrl    String?
   artist      Artist   @relation(fields: [artistId], references: [id])
   artistId    Int
   tracks      Track[]

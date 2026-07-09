@@ -34,6 +34,7 @@ export function AlbumFormDialog({
 }) {
   const [title, setTitle] = React.useState(album?.title ?? "")
   const [year, setYear] = React.useState(album?.releaseYear?.toString() ?? "")
+  const [imageUrl, setImageUrl] = React.useState(album?.imageUrl ?? "")
   const [artistId, setArtistId] = React.useState<string>(
     (album?.artistId ?? defaultArtistId)?.toString() ?? "",
   )
@@ -44,6 +45,7 @@ export function AlbumFormDialog({
     if (open) {
       setTitle(album?.title ?? "")
       setYear(album?.releaseYear?.toString() ?? "")
+      setImageUrl(album?.imageUrl ?? "")
       setArtistId((album?.artistId ?? defaultArtistId)?.toString() ?? "")
       setNewArtistName("")
     }
@@ -70,6 +72,7 @@ export function AlbumFormDialog({
       const dto = {
         title: title.trim(),
         releaseYear: year ? Number(year) : undefined,
+        imageUrl: imageUrl.trim() || undefined,
         artistId: resolvedArtistId,
       }
 
@@ -117,6 +120,17 @@ export function AlbumFormDialog({
               value={year}
               onChange={(e) => setYear(e.target.value)}
               placeholder="1977"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="album-image">Cover image URL</Label>
+            <Input
+              id="album-image"
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://…"
             />
           </div>
 

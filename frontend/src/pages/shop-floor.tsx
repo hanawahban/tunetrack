@@ -50,7 +50,7 @@ export function ShopFloorPage() {
         <div>
           <h1 className="font-heading text-2xl font-semibold text-shop-paper">Shop Floor</h1>
           <p className="text-sm text-muted-foreground">
-            Every sleeve in the crate. Dig in — the disc peeks out when you hover.
+            Every tune in the crate. Dig in.
           </p>
         </div>
         {canCurate && (

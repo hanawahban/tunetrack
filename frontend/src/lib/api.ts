@@ -68,6 +68,7 @@ export type Album = {
   id: number
   title: string
   releaseYear: number | null
+  imageUrl: string | null
   artistId: number
   createdAt: string
   artist?: Artist
@@ -107,11 +108,11 @@ export const api = {
   // albums
   albums: () => request<Album[]>("/albums"),
   album: (id: number) => request<Album>(`/albums/${id}`),
-  createAlbum: (dto: { title: string; releaseYear?: number; artistId: number }) =>
+  createAlbum: (dto: { title: string; releaseYear?: number; imageUrl?: string; artistId: number }) =>
     request<Album>("/albums", { method: "POST", body: JSON.stringify(dto) }),
   updateAlbum: (
     id: number,
-    dto: Partial<{ title: string; releaseYear: number; artistId: number }>,
+    dto: Partial<{ title: string; releaseYear: number; imageUrl: string; artistId: number }>,
   ) => request<Album>(`/albums/${id}`, { method: "PATCH", body: JSON.stringify(dto) }),
   deleteAlbum: (id: number) => request<void>(`/albums/${id}`, { method: "DELETE" }),
 

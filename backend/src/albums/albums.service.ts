@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
+import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Injectable()
 export class AlbumsService {
@@ -11,6 +12,7 @@ export class AlbumsService {
       data: {
         title: dto.title,
         releaseYear: dto.releaseYear,
+        imageUrl: dto.imageUrl,
         artistId: dto.artistId,
       },
     });
@@ -29,12 +31,13 @@ export class AlbumsService {
     return album;
   }
 
-  update(id: number, dto: Partial<CreateAlbumDto>) {
+  update(id: number, dto: UpdateAlbumDto) {
     return this.prisma.album.update({
       where: { id },
       data: {
         title: dto.title,
         releaseYear: dto.releaseYear,
+        imageUrl: dto.imageUrl,
         artistId: dto.artistId,
       },
     });

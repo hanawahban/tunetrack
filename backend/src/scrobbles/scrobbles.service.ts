@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ScrobblesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(userId: number, trackId: number) {
+  async create(userId: number, trackId: number) {
+    const track = await this.prisma.track.findUnique({ where: { id: trackId } });
+    if (!track) throw new NotFoundException(`Track ${trackId} not found`);
     return this.prisma.scrobble.create({ data: { userId, trackId } });
   }
 

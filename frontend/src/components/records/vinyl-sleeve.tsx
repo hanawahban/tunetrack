@@ -47,13 +47,20 @@ export function VinylSleeve({
         </div>
       </div>
 
-      {/* the sleeve — the printed jacket, in front */}
+      {/* the sleeve — the printed jacket, in front. Tint always sits underneath as a
+          fallback fill so a broken/blocked cover image never leaves a transparent hole. */}
       <div
         className={cn(
           "absolute inset-0 z-10 flex flex-col justify-between overflow-hidden rounded-[2px] border border-black/30 p-3 shadow-[2px_2px_10px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out group-hover:-translate-x-[6%] group-hover:translate-y-[3%] group-hover:-rotate-2",
           tint,
         )}
+        style={
+          album.imageUrl
+            ? { backgroundImage: `url(${album.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : undefined
+        }
       >
+        {album.imageUrl && <div className="pointer-events-none absolute inset-0 bg-black/25" />}
         {/* spine shadow */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-2 bg-black/25" />
         {/* worn corner */}
