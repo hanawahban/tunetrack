@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
@@ -19,6 +20,7 @@ import { Role } from '../generated/prisma/enums';
 
 @Controller('albums')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class AlbumsController {
   constructor(private albumsService: AlbumsService) {}
 

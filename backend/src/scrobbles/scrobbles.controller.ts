@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { ScrobblesService } from './scrobbles.service';
 import { CreateScrobbleDto } from './dto/create-scrobble.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -6,6 +7,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('scrobbles')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class ScrobblesController {
   constructor(private scrobblesService: ScrobblesService) {}
 
