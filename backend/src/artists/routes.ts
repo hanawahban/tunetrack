@@ -1,9 +1,7 @@
 import { Elysia, status, t } from 'elysia';
-import { eq } from 'drizzle-orm';
-import { db } from '../db';
-import { artists } from '../db/schema';
 import { httpError } from '../common/http-error';
 import { authGuard } from '../auth/guard';
+import { createArtist, findAllArtists, findArtistById, updateArtist, removeArtist } from './service';
 
 const albumSummary = t.Object({
   id: t.Number(),
@@ -52,15 +50,15 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   .post(
     '/',
     async ({ body }) => {
-      const [artist] = await db.insert(artists).values({ name: body.name }).returning();
-      return status(201, serializeArtist(artist!));
+      const artist = await createArtist(body.name);
+      return status(201, serializeArtist(artist));
     },
     { body: artistBody, response: { 201: artistResponse }, roles: ['ADMIN', 'CURATOR'] },
   )
   .get(
     '/',
     async () => {
-      const rows = await db.query.artists.findMany({ with: { albums: true } });
+      const rows = await findAllArtists();
       return rows.map((row) => serializeArtist(row, row.albums));
     },
     { response: { 200: t.Array(artistResponse) }, auth: true },
@@ -68,10 +66,7 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   .get(
     '/:id',
     async ({ params }) => {
-      const artist = await db.query.artists.findFirst({
-        where: eq(artists.id, params.id),
-        with: { albums: true },
-      });
+      const artist = await findArtistById(params.id);
       if (!artist) return httpError(404, `Artist ${params.id} not found`);
       return status(200, serializeArtist(artist, artist.albums));
     },
@@ -84,11 +79,7 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   .patch(
     '/:id',
     async ({ params, body }) => {
-      const [updated] = await db
-        .update(artists)
-        .set({ name: body.name })
-        .where(eq(artists.id, params.id))
-        .returning();
+      const updated = await updateArtist(params.id, body.name);
       if (!updated) return httpError(404, `Artist ${params.id} not found`);
       return status(200, serializeArtist(updated));
     },
@@ -102,7 +93,7 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   .delete(
     '/:id',
     async ({ params }) => {
-      const [deleted] = await db.delete(artists).where(eq(artists.id, params.id)).returning();
+      const deleted = await removeArtist(params.id);
       if (!deleted) return httpError(404, `Artist ${params.id} not found`);
       return status(200, serializeArtist(deleted));
     },
