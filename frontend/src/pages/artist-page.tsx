@@ -3,23 +3,21 @@ import { Link, useParams } from "react-router-dom"
 import { ArrowLeft, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
-import { api, ApiError, type Artist } from "@/lib/api"
+import { useArtistsControllerFindOne } from "@/lib/api/generated/artists/artists"
+import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function ArtistPage() {
   const { id } = useParams<{ id: string }>()
   const artistId = Number(id)
-  const [artist, setArtist] = React.useState<Artist | null>(null)
+  const { data: artist, error } = useArtistsControllerFindOne(artistId)
 
   React.useEffect(() => {
-    api
-      .artist(artistId)
-      .then(setArtist)
-      .catch((err) =>
-        toast.error(err instanceof ApiError ? err.message : "Couldn't find that artist."),
-      )
-  }, [artistId])
+    if (error) {
+      toast.error(error instanceof ApiError ? error.message : "Couldn't find that artist.")
+    }
+  }, [error])
 
   if (!artist) {
     return (

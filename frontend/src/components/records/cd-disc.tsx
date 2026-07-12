@@ -1,7 +1,7 @@
 import { Disc3, Play, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { Track } from "@/lib/api"
+import type { TrackResponseDto } from "@/lib/api/generated/model"
 
 export function CdTrackRow({
   track,
@@ -12,7 +12,7 @@ export function CdTrackRow({
   canCurate,
   spinning,
 }: {
-  track: Track
+  track: TrackResponseDto
   index: number
   onSpin: () => void
   onEdit?: () => void

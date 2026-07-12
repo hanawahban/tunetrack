@@ -1,7 +1,23 @@
 import * as React from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { toast } from "sonner"
 
-import { api, ApiError, type Album, type Artist } from "@/lib/api"
+import {
+  useAlbumsControllerCreate,
+  useAlbumsControllerUpdate,
+  getAlbumsControllerFindAllQueryKey,
+  getAlbumsControllerFindOneQueryKey,
+} from "@/lib/api/generated/albums/albums"
+import {
+  useArtistsControllerFindAll,
+  useArtistsControllerCreate,
+  getArtistsControllerFindAllQueryKey,
+} from "@/lib/api/generated/artists/artists"
+import type { AlbumResponseDto } from "@/lib/api/generated/model"
+import { ApiError } from "@/lib/api-error"
 import {
   Dialog,
   DialogContent,
@@ -12,81 +28,105 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const albumFormSchema = z
+  .object({
+    title: z.string().trim().min(1, "Every sleeve needs a title."),
+    releaseYear: z.string().trim(),
+    imageUrl: z.string().trim(),
+    artistId: z.string(),
+    newArtistName: z.string().trim(),
+  })
+  .refine((v) => v.artistId || v.newArtistName, {
+    message: "Every record needs an artist on the sleeve.",
+    path: ["artistId"],
+  })
+
+type AlbumFormValues = z.infer<typeof albumFormSchema>
 
 export function AlbumFormDialog({
   open,
   onOpenChange,
-  artists,
   album,
   defaultArtistId,
-  onSaved,
-  onArtistCreated,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  artists: Artist[]
-  album?: Album
+  album?: AlbumResponseDto
   defaultArtistId?: number
-  onSaved: (album: Album) => void
-  onArtistCreated: (artist: Artist) => void
 }) {
-  const [title, setTitle] = React.useState(album?.title ?? "")
-  const [year, setYear] = React.useState(album?.releaseYear?.toString() ?? "")
-  const [imageUrl, setImageUrl] = React.useState(album?.imageUrl ?? "")
-  const [artistId, setArtistId] = React.useState<string>(
-    (album?.artistId ?? defaultArtistId)?.toString() ?? "",
-  )
-  const [newArtistName, setNewArtistName] = React.useState("")
-  const [saving, setSaving] = React.useState(false)
+  const queryClient = useQueryClient()
+  const { data: artists } = useArtistsControllerFindAll()
+  const createArtist = useArtistsControllerCreate()
+  const createAlbum = useAlbumsControllerCreate()
+  const updateAlbum = useAlbumsControllerUpdate()
+
+  const form = useForm<AlbumFormValues>({
+    resolver: zodResolver(albumFormSchema),
+    defaultValues: {
+      title: "",
+      releaseYear: "",
+      imageUrl: "",
+      artistId: "",
+      newArtistName: "",
+    },
+  })
 
   React.useEffect(() => {
     if (open) {
-      setTitle(album?.title ?? "")
-      setYear(album?.releaseYear?.toString() ?? "")
-      setImageUrl(album?.imageUrl ?? "")
-      setArtistId((album?.artistId ?? defaultArtistId)?.toString() ?? "")
-      setNewArtistName("")
+      form.reset({
+        title: album?.title ?? "",
+        releaseYear: album?.releaseYear?.toString() ?? "",
+        imageUrl: album?.imageUrl ?? "",
+        artistId: (album?.artistId ?? defaultArtistId)?.toString() ?? "",
+        newArtistName: "",
+      })
     }
-  }, [open, album, defaultArtistId])
+  }, [open, album, defaultArtistId, form])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
+  const saving = createArtist.isPending || createAlbum.isPending || updateAlbum.isPending
+
+  async function onSubmit(values: AlbumFormValues) {
     try {
-      let resolvedArtistId = artistId ? Number(artistId) : undefined
+      let artistId = values.artistId ? Number(values.artistId) : undefined
 
-      if (!resolvedArtistId && newArtistName.trim()) {
-        const created = await api.createArtist(newArtistName.trim())
-        onArtistCreated(created)
-        resolvedArtistId = created.id
+      if (!artistId && values.newArtistName) {
+        const created = await createArtist.mutateAsync({ data: { name: values.newArtistName } })
+        queryClient.invalidateQueries({ queryKey: getArtistsControllerFindAllQueryKey() })
+        artistId = created.id
       }
 
-      if (!resolvedArtistId) {
-        toast.error("Every record needs an artist on the sleeve.")
-        setSaving(false)
-        return
-      }
+      if (!artistId) return
 
       const dto = {
-        title: title.trim(),
-        releaseYear: year ? Number(year) : undefined,
-        imageUrl: imageUrl.trim() || undefined,
-        artistId: resolvedArtistId,
+        title: values.title,
+        releaseYear: values.releaseYear ? Number(values.releaseYear) : undefined,
+        imageUrl: values.imageUrl || undefined,
+        artistId,
       }
 
-      const saved = album
-        ? await api.updateAlbum(album.id, dto)
-        : await api.createAlbum(dto)
+      if (album) {
+        await updateAlbum.mutateAsync({ id: album.id, data: dto })
+        queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindOneQueryKey(album.id) })
+      } else {
+        await createAlbum.mutateAsync({ data: dto })
+      }
+      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindAllQueryKey() })
 
       toast.success(album ? "Sleeve updated." : "New record shelved.")
-      onSaved(saved)
       onOpenChange(false)
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Couldn't save that record.")
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -100,73 +140,108 @@ export function AlbumFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="album-title">Title</Label>
-            <Input
-              id="album-title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Rumours"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Rumours" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="album-year">Release year</Label>
-            <Input
-              id="album-year"
-              type="number"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              placeholder="1977"
+            <FormField
+              control={form.control}
+              name="releaseYear"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Release year</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="1977" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="album-image">Cover image URL</Label>
-            <Input
-              id="album-image"
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://…"
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cover image URL</FormLabel>
+                  <FormControl>
+                    <Input type="url" placeholder="https://…" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-1.5">
-            <Label>Artist</Label>
-            <Select value={artistId} onValueChange={setArtistId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Pick an artist" />
-              </SelectTrigger>
-              <SelectContent>
-                {artists.map((a) => (
-                  <SelectItem key={a.id} value={a.id.toString()}>
-                    {a.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-catalog pt-1 text-[0.65rem] text-muted-foreground">
-              or type a new one below
-            </p>
-            <Input
-              value={newArtistName}
-              onChange={(e) => {
-                setNewArtistName(e.target.value)
-                if (e.target.value) setArtistId("")
-              }}
-              placeholder="New artist name"
+            <FormField
+              control={form.control}
+              name="artistId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Artist</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      field.onChange(v)
+                      if (v) form.setValue("newArtistName", "")
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pick an artist" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {artists?.map((a) => (
+                        <SelectItem key={a.id} value={a.id.toString()}>
+                          {a.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>or type a new one below</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <DialogFooter>
-            <Button type="submit" variant="oxblood" disabled={saving}>
-              {saving ? "Saving…" : album ? "Save changes" : "Add to the crate"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <FormField
+              control={form.control}
+              name="newArtistName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      placeholder="New artist name"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        if (e.target.value) form.setValue("artistId", "")
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="submit" variant="oxblood" disabled={saving}>
+                {saving ? "Saving…" : album ? "Save changes" : "Add to the crate"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

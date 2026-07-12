@@ -3,10 +3,10 @@ import { Link } from "react-router-dom"
 import { Disc3, Receipt } from "lucide-react"
 import { toast } from "sonner"
 
-import { api, ApiError, type Scrobble } from "@/lib/api"
+import { useScrobblesControllerFindRecent } from "@/lib/api/generated/scrobbles/scrobbles"
+import { useStatsControllerTopArtists } from "@/lib/api/generated/stats/stats"
+import { ApiError } from "@/lib/api-error"
 import { Skeleton } from "@/components/ui/skeleton"
-
-type TopArtist = { artistId: number; name: string; playCount: number }
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
@@ -20,22 +20,17 @@ function timeAgo(iso: string) {
 }
 
 export function MyCratePage() {
-  const [scrobbles, setScrobbles] = React.useState<Scrobble[] | null>(null)
-  const [topArtists, setTopArtists] = React.useState<TopArtist[] | null>(null)
+  const { data: scrobbles, isPending: scrobblesPending, error: scrobblesError } =
+    useScrobblesControllerFindRecent()
+  const { data: topArtists, isPending: topArtistsPending } = useStatsControllerTopArtists()
 
   React.useEffect(() => {
-    api
-      .recentScrobbles()
-      .then(setScrobbles)
-      .catch((err) => {
-        toast.error(err instanceof ApiError ? err.message : "Couldn't pull your receipt.")
-        setScrobbles([])
-      })
-    api
-      .topArtists()
-      .then(setTopArtists)
-      .catch(() => setTopArtists([]))
-  }, [])
+    if (scrobblesError) {
+      toast.error(
+        scrobblesError instanceof ApiError ? scrobblesError.message : "Couldn't pull your receipt.",
+      )
+    }
+  }, [scrobblesError])
 
   const maxPlays = Math.max(1, ...(topArtists ?? []).map((a) => a.playCount))
 
@@ -65,7 +60,7 @@ export function MyCratePage() {
                 "repeating-linear-gradient(180deg, transparent 0 27px, oklch(0 0 0 / 0.05) 27px 28px)",
             }}
           >
-            {scrobbles === null && (
+            {scrobblesPending && (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-6 w-full bg-black/10" />
@@ -120,7 +115,7 @@ export function MyCratePage() {
           </div>
 
           <div className="rounded-sm border border-shop-brass/40 bg-[oklch(0.2_0.02_150)] p-5 shadow-lg">
-            {topArtists === null && (
+            {topArtistsPending && (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <Skeleton key={i} className="h-5 w-full" />

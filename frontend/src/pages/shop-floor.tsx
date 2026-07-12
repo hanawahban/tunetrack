@@ -3,8 +3,9 @@ import { Link } from "react-router-dom"
 import { Search, Plus, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
-import { api, ApiError, type Album, type Artist } from "@/lib/api"
+import { useAlbumsControllerFindAll } from "@/lib/api/generated/albums/albums"
 import { useAuth } from "@/lib/auth-context"
+import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { Input } from "@/components/ui/input"
@@ -13,25 +14,16 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function ShopFloorPage() {
   const { canCurate } = useAuth()
-  const [albums, setAlbums] = React.useState<Album[] | null>(null)
-  const [artists, setArtists] = React.useState<Artist[]>([])
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
 
-  const load = React.useCallback(async () => {
-    try {
-      const [a, ar] = await Promise.all([api.albums(), api.artists()])
-      setAlbums(a)
-      setArtists(ar)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't open the shop today.")
-      setAlbums([])
-    }
-  }, [])
+  const { data: albums, isPending, error } = useAlbumsControllerFindAll()
 
   React.useEffect(() => {
-    load()
-  }, [load])
+    if (error) {
+      toast.error(error instanceof ApiError ? error.message : "Couldn't open the shop today.")
+    }
+  }, [error])
 
   const filtered = React.useMemo(() => {
     if (!albums) return null
@@ -70,7 +62,7 @@ export function ShopFloorPage() {
         />
       </div>
 
-      {filtered === null && (
+      {isPending && (
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square" />
@@ -97,13 +89,7 @@ export function ShopFloorPage() {
         </div>
       )}
 
-      <AlbumFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        artists={artists}
-        onSaved={() => load()}
-        onArtistCreated={(artist) => setArtists((prev) => [...prev, artist])}
-      />
+      <AlbumFormDialog open={formOpen} onOpenChange={setFormOpen} />
     </div>
   )
 }
