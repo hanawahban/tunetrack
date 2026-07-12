@@ -9,6 +9,7 @@ const ERROR_NAMES: Record<number, string> = {
 };
 
 /** Mirrors Nest's default HttpException JSON shape ({statusCode, message, error}) for response parity. */
-export function httpError(code: number, message: string) {
-  return status(code, { statusCode: code, message, error: ERROR_NAMES[code] ?? 'Error' });
+export function httpError<T extends number>(code: T, message: string) {
+  const error: string = ERROR_NAMES[code] ?? 'Error';
+  return status(code, { statusCode: code, message, error });
 }

@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   pgTable,
   pgEnum,
@@ -64,3 +65,26 @@ export const scrobbles = pgTable(
   },
   (table) => [index('Scrobble_userId_playedAt_idx').on(table.userId, table.playedAt)],
 );
+
+export const artistsRelations = relations(artists, ({ many }) => ({
+  albums: many(albums),
+}));
+
+export const albumsRelations = relations(albums, ({ one, many }) => ({
+  artist: one(artists, { fields: [albums.artistId], references: [artists.id] }),
+  tracks: many(tracks),
+}));
+
+export const tracksRelations = relations(tracks, ({ one, many }) => ({
+  album: one(albums, { fields: [tracks.albumId], references: [albums.id] }),
+  scrobbles: many(scrobbles),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  scrobbles: many(scrobbles),
+}));
+
+export const scrobblesRelations = relations(scrobbles, ({ one }) => ({
+  user: one(users, { fields: [scrobbles.userId], references: [users.id] }),
+  track: one(tracks, { fields: [scrobbles.trackId], references: [tracks.id] }),
+}));
