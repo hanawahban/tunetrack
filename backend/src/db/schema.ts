@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('Role', ['ADMIN', 'CURATOR', 'LISTENER']);
+export type Role = (typeof roleEnum.enumValues)[number];
 
 export const artists = pgTable('Artist', {
   id: serial('id').primaryKey(),
