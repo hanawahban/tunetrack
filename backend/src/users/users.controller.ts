@@ -1,11 +1,12 @@
 import { Body, Controller, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../generated/prisma/enums';
 import { UsersService } from './users.service';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -16,6 +17,7 @@ export class UsersController {
   @Patch(':id/role')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
+  @ApiOkResponse({ type: UserResponseDto })
   updateRole(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateRoleDto,
