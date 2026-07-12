@@ -1,10 +1,24 @@
 import * as React from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Plus, Pencil, Trash2, Disc3 } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { api, ApiError, type Album, type Artist, type Track } from "@/lib/api"
+import {
+  useAlbumsControllerFindOne,
+  useAlbumsControllerRemove,
+  getAlbumsControllerFindAllQueryKey,
+  getAlbumsControllerFindOneQueryKey,
+} from "@/lib/api/generated/albums/albums"
+import { useTracksControllerRemove } from "@/lib/api/generated/tracks/tracks"
+import {
+  useScrobblesControllerCreate,
+  getScrobblesControllerFindRecentQueryKey,
+} from "@/lib/api/generated/scrobbles/scrobbles"
+import { getStatsControllerTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
+import type { TrackResponseDto } from "@/lib/api/generated/model"
 import { useAuth } from "@/lib/auth-context"
+import { ApiError } from "@/lib/api-error"
 import { CdTrackRow } from "@/components/records/cd-disc"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { TrackFormDialog } from "@/components/records/track-form-dialog"
@@ -18,36 +32,33 @@ export function AlbumPage() {
   const albumId = Number(id)
   const navigate = useNavigate()
   const { canCurate } = useAuth()
+  const queryClient = useQueryClient()
 
-  const [album, setAlbum] = React.useState<Album | null>(null)
-  const [artists, setArtists] = React.useState<Artist[]>([])
+  const { data: album, error } = useAlbumsControllerFindOne(albumId)
+  const scrobble = useScrobblesControllerCreate()
+  const removeAlbum = useAlbumsControllerRemove()
+  const removeTrack = useTracksControllerRemove()
+
   const [spinningId, setSpinningId] = React.useState<number | null>(null)
-
   const [editAlbumOpen, setEditAlbumOpen] = React.useState(false)
   const [deleteAlbumOpen, setDeleteAlbumOpen] = React.useState(false)
-  const [trackDialog, setTrackDialog] = React.useState<{ open: boolean; track?: Track }>({
+  const [trackDialog, setTrackDialog] = React.useState<{ open: boolean; track?: TrackResponseDto }>({
     open: false,
   })
-  const [deleteTrack, setDeleteTrack] = React.useState<Track | null>(null)
-
-  const load = React.useCallback(async () => {
-    try {
-      const a = await api.album(albumId)
-      setAlbum(a)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't find that record.")
-    }
-  }, [albumId])
+  const [deleteTrack, setDeleteTrack] = React.useState<TrackResponseDto | null>(null)
 
   React.useEffect(() => {
-    load()
-    api.artists().then(setArtists).catch(() => {})
-  }, [load])
+    if (error) {
+      toast.error(error instanceof ApiError ? error.message : "Couldn't find that record.")
+    }
+  }, [error])
 
-  async function handleSpin(track: Track) {
+  async function handleSpin(track: TrackResponseDto) {
     setSpinningId(track.id)
     try {
-      await api.scrobble(track.id)
+      await scrobble.mutateAsync({ data: { trackId: track.id } })
+      queryClient.invalidateQueries({ queryKey: getScrobblesControllerFindRecentQueryKey() })
+      queryClient.invalidateQueries({ queryKey: getStatsControllerTopArtistsQueryKey() })
       toast.success(`Spinning "${track.title}"`)
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "The needle skipped.")
@@ -58,7 +69,8 @@ export function AlbumPage() {
 
   async function handleDeleteAlbum() {
     try {
-      await api.deleteAlbum(albumId)
+      await removeAlbum.mutateAsync({ id: albumId })
+      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindAllQueryKey() })
       toast.success("Pulled from the crate.")
       navigate("/")
     } catch (err) {
@@ -69,10 +81,10 @@ export function AlbumPage() {
   async function handleDeleteTrack() {
     if (!deleteTrack) return
     try {
-      await api.deleteTrack(deleteTrack.id)
+      await removeTrack.mutateAsync({ id: deleteTrack.id })
+      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindOneQueryKey(albumId) })
       toast.success("Track lifted off the record.")
       setDeleteTrack(null)
-      load()
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Couldn't remove that track.")
     }
@@ -188,21 +200,13 @@ export function AlbumPage() {
         </div>
       </div>
 
-      <AlbumFormDialog
-        open={editAlbumOpen}
-        onOpenChange={setEditAlbumOpen}
-        artists={artists}
-        album={album}
-        onSaved={() => load()}
-        onArtistCreated={(artist) => setArtists((prev) => [...prev, artist])}
-      />
+      <AlbumFormDialog open={editAlbumOpen} onOpenChange={setEditAlbumOpen} album={album} />
 
       <TrackFormDialog
         open={trackDialog.open}
         onOpenChange={(open) => setTrackDialog({ open })}
         albumId={album.id}
         track={trackDialog.track}
-        onSaved={() => load()}
       />
 
       <ConfirmDeleteDialog

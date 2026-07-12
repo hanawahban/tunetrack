@@ -16,3 +16,5 @@ scratchpad/
 /backend/prisma.config.js
 /backend/prisma.config.js.map
 /backend/prisma.config.d.ts
+
+/frontend/src/lib/api/generated/

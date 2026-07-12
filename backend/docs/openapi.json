@@ -17,7 +17,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -40,7 +47,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/AlbumResponseDto"
                   }
                 }
               }
@@ -76,7 +83,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AlbumResponseDto"
                 }
               }
             }
@@ -115,7 +122,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -141,7 +155,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -170,7 +191,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtistResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -193,7 +221,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/ArtistResponseDto"
                   }
                 }
               }
@@ -229,7 +257,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ArtistResponseDto"
                 }
               }
             }
@@ -268,7 +296,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtistResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -294,7 +329,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtistResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -323,7 +365,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -346,7 +395,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/TrackResponseDto"
                   }
                 }
               }
@@ -382,7 +431,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/TrackResponseDto"
                 }
               }
             }
@@ -421,7 +470,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -447,7 +503,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -485,7 +548,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -514,7 +584,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -538,7 +615,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -562,7 +646,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScrobbleResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -587,7 +678,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/ScrobbleResponseDto"
                   }
                 }
               }
@@ -610,7 +701,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopArtistDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -661,6 +762,100 @@
         "required": [
           "title",
           "artistId"
+        ]
+      },
+      "TrackResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "albumId": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "album": {
+            "$ref": "#/components/schemas/AlbumResponseDto"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "albumId",
+          "createdAt"
+        ]
+      },
+      "AlbumResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "releaseYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "artistId": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "artist": {
+            "$ref": "#/components/schemas/ArtistResponseDto"
+          },
+          "tracks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrackResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "artistId",
+          "createdAt"
+        ]
+      },
+      "ArtistResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "albums": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AlbumResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt"
         ]
       },
       "UpdateAlbumDto": {
@@ -737,6 +932,35 @@
           "role"
         ]
       },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "CURATOR",
+              "LISTENER"
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "role",
+          "createdAt"
+        ]
+      },
       "RegisterDto": {
         "type": "object",
         "properties": {
@@ -770,6 +994,17 @@
           "password"
         ]
       },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token"
+        ]
+      },
       "CreateScrobbleDto": {
         "type": "object",
         "properties": {
@@ -779,6 +1014,52 @@
         },
         "required": [
           "trackId"
+        ]
+      },
+      "ScrobbleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "number"
+          },
+          "trackId": {
+            "type": "number"
+          },
+          "playedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "track": {
+            "$ref": "#/components/schemas/TrackResponseDto"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "trackId",
+          "playedAt"
+        ]
+      },
+      "TopArtistDto": {
+        "type": "object",
+        "properties": {
+          "artistId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "playCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "artistId",
+          "name",
+          "playCount"
         ]
       }
     }

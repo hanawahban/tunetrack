@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import type { Album } from "@/lib/api"
+import type { AlbumResponseDto } from "@/lib/api/generated/model"
 
 // A small, restrained set of worn-sleeve tints so the crate doesn't look uniform,
 // the way a real shelf of used records never has two identical sleeves.
@@ -19,7 +19,7 @@ export function VinylSleeve({
   album,
   className,
 }: {
-  album: Album
+  album: AlbumResponseDto
   className?: string
 }) {
   const tint = tintFor(album.id)

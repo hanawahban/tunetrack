@@ -1,36 +1,47 @@
 import * as React from "react"
 import { useNavigate } from "react-router-dom"
 import { Disc3 } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { toast } from "sonner"
 
 import { useAuth } from "@/lib/auth-context"
-import { ApiError } from "@/lib/api"
+import { ApiError } from "@/lib/api-error"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+
+const authFormSchema = z.object({
+  email: z.string().trim().email("Enter a valid email."),
+  password: z.string().min(8, "At least 8 characters."),
+})
+
+type AuthFormValues = z.infer<typeof authFormSchema>
 
 export function AuthPage() {
   const { login, register, isLoading } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = React.useState<"login" | "register">("login")
-  const [email, setEmail] = React.useState("")
-  const [password, setPassword] = React.useState("")
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  const form = useForm<AuthFormValues>({
+    resolver: zodResolver(authFormSchema),
+    defaultValues: { email: "", password: "" },
+  })
+
+  async function onSubmit(values: AuthFormValues) {
     try {
       if (mode === "login") {
-        await login(email, password)
+        await login(values.email, values.password)
         toast.success("Welcome back to the shop.")
       } else {
-        await register(email, password)
+        await register(values.email, values.password)
         toast.success("Membership card punched. You're in.")
       }
       navigate("/")
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Something went wrong."
-      toast.error(message)
+      toast.error(err instanceof ApiError ? err.message : "Something went wrong.")
     }
   }
 
@@ -69,40 +80,53 @@ export function AuthPage() {
               </p>
             </TabsContent>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@yourlabel.com"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          autoComplete="email"
+                          placeholder="you@yourlabel.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          autoComplete={mode === "login" ? "current-password" : "new-password"}
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <Button type="submit" variant="oxblood" className="w-full" disabled={isLoading}>
-                {isLoading
-                  ? "One moment…"
-                  : mode === "login"
-                    ? "Step inside"
-                    : "Punch my card"}
-              </Button>
-            </form>
+                <Button type="submit" variant="oxblood" className="w-full" disabled={isLoading}>
+                  {isLoading
+                    ? "One moment…"
+                    : mode === "login"
+                      ? "Step inside"
+                      : "Punch my card"}
+                </Button>
+              </form>
+            </Form>
           </Tabs>
         </div>
       </div>
