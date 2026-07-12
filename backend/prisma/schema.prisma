@@ -24,7 +24,7 @@ model Album {
   title       String
   releaseYear Int?
   imageUrl    String?
-  artist      Artist   @relation(fields: [artistId], references: [id])
+  artist      Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
   artistId    Int
   tracks      Track[]
   createdAt   DateTime @default(now())
@@ -33,7 +33,7 @@ model Album {
 model Track {
   id        Int        @id @default(autoincrement())
   title     String
-  album     Album      @relation(fields: [albumId], references: [id])
+  album     Album      @relation(fields: [albumId], references: [id], onDelete: Cascade)
   albumId   Int
   scrobbles Scrobble[]
   createdAt DateTime   @default(now())
@@ -58,7 +58,7 @@ model Scrobble {
   id       Int      @id @default(autoincrement())
   user     User     @relation(fields: [userId], references: [id])
   userId   Int
-  track    Track    @relation(fields: [trackId], references: [id])
+  track    Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
   trackId  Int
   playedAt DateTime @default(now())
 
