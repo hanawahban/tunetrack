@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { resetDb } from '../test/db';
-import { patch, login, registerAs, json } from '../test/app';
+import { patch, post, login, registerAs, json } from '../test/app';
 import type { Role } from '../db/schema';
 
 describe('PATCH /users/:id/role', () => {
@@ -36,5 +36,41 @@ describe('PATCH /users/:id/role', () => {
     expect(res.status).toBe(200);
     const body = await json<{ role: Role }>(res);
     expect(body.role).toBe('CURATOR');
+  });
+
+  test('an admin cannot demote themselves -> 403', async () => {
+    const admin = await registerAs('self-admin@test.com', 'ADMIN');
+    const token = await login('self-admin@test.com', 'password123');
+    const res = await patch(`/users/${admin.id}/role`, { token, body: { role: 'LISTENER' } });
+    expect(res.status).toBe(403);
+  });
+
+  test('an admin cannot demote another admin -> 403', async () => {
+    await registerAs('admin3@test.com', 'ADMIN');
+    const otherAdmin = await registerAs('admin4@test.com', 'ADMIN');
+    const token = await login('admin3@test.com', 'password123');
+    const res = await patch(`/users/${otherAdmin.id}/role`, { token, body: { role: 'LISTENER' } });
+    expect(res.status).toBe(403);
+  });
+
+  test('a role change takes effect on the next request without re-login', async () => {
+    await registerAs('admin5@test.com', 'ADMIN');
+    const adminToken = await login('admin5@test.com', 'password123');
+    const listener = await registerAs('promoted@test.com', 'LISTENER');
+    const listenerToken = await login('promoted@test.com', 'password123');
+
+    // a LISTENER can't create an artist yet
+    const before = await post('/artists', { token: listenerToken, body: { name: 'Too Early' } });
+    expect(before.status).toBe(403);
+
+    const promote = await patch(`/users/${listener.id}/role`, {
+      token: adminToken,
+      body: { role: 'CURATOR' },
+    });
+    expect(promote.status).toBe(200);
+
+    // same (already-issued) token, no re-login -- the guard re-fetches the role per request
+    const after = await post('/artists', { token: listenerToken, body: { name: 'Now Allowed' } });
+    expect(after.status).toBe(201);
   });
 });
