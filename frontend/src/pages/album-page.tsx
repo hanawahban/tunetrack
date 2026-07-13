@@ -5,17 +5,17 @@ import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import {
-  useAlbumsControllerFindOne,
-  useAlbumsControllerRemove,
-  getAlbumsControllerFindAllQueryKey,
-  getAlbumsControllerFindOneQueryKey,
+  useGetAlbumsById,
+  useDeleteAlbumsById,
+  getGetAlbumsQueryKey,
+  getGetAlbumsByIdQueryKey,
 } from "@/lib/api/generated/albums/albums"
-import { useTracksControllerRemove } from "@/lib/api/generated/tracks/tracks"
+import { useDeleteTracksById } from "@/lib/api/generated/tracks/tracks"
 import {
-  useScrobblesControllerCreate,
-  getScrobblesControllerFindRecentQueryKey,
+  usePostScrobbles,
+  getGetScrobblesRecentQueryKey,
 } from "@/lib/api/generated/scrobbles/scrobbles"
-import { getStatsControllerTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
+import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
 import type { TrackResponseDto } from "@/lib/api/generated/model"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
@@ -34,10 +34,10 @@ export function AlbumPage() {
   const { canCurate } = useAuth()
   const queryClient = useQueryClient()
 
-  const { data: album, error } = useAlbumsControllerFindOne(albumId)
-  const scrobble = useScrobblesControllerCreate()
-  const removeAlbum = useAlbumsControllerRemove()
-  const removeTrack = useTracksControllerRemove()
+  const { data: album, error } = useGetAlbumsById(albumId)
+  const scrobble = usePostScrobbles()
+  const removeAlbum = useDeleteAlbumsById()
+  const removeTrack = useDeleteTracksById()
 
   const [spinningId, setSpinningId] = React.useState<number | null>(null)
   const [editAlbumOpen, setEditAlbumOpen] = React.useState(false)
@@ -57,8 +57,8 @@ export function AlbumPage() {
     setSpinningId(track.id)
     try {
       await scrobble.mutateAsync({ data: { trackId: track.id } })
-      queryClient.invalidateQueries({ queryKey: getScrobblesControllerFindRecentQueryKey() })
-      queryClient.invalidateQueries({ queryKey: getStatsControllerTopArtistsQueryKey() })
+      queryClient.invalidateQueries({ queryKey: getGetScrobblesRecentQueryKey() })
+      queryClient.invalidateQueries({ queryKey: getGetStatsTopArtistsQueryKey() })
       toast.success(`Spinning "${track.title}"`)
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "The needle skipped.")
@@ -70,7 +70,7 @@ export function AlbumPage() {
   async function handleDeleteAlbum() {
     try {
       await removeAlbum.mutateAsync({ id: albumId })
-      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindAllQueryKey() })
+      queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
       toast.success("Pulled from the crate.")
       navigate("/")
     } catch (err) {
@@ -82,7 +82,7 @@ export function AlbumPage() {
     if (!deleteTrack) return
     try {
       await removeTrack.mutateAsync({ id: deleteTrack.id })
-      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindOneQueryKey(albumId) })
+      queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
       toast.success("Track lifted off the record.")
       setDeleteTrack(null)
     } catch (err) {

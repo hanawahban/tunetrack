@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Search, Plus, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useAlbumsControllerFindAll } from "@/lib/api/generated/albums/albums"
+import { useGetAlbums } from "@/lib/api/generated/albums/albums"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
@@ -17,7 +17,7 @@ export function ShopFloorPage() {
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
 
-  const { data: albums, isPending, error } = useAlbumsControllerFindAll()
+  const { data: albums, isPending, error } = useGetAlbums()
 
   React.useEffect(() => {
     if (error) {
