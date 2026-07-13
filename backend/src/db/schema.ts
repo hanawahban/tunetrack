@@ -88,3 +88,9 @@ export const scrobblesRelations = relations(scrobbles, ({ one }) => ({
   user: one(users, { fields: [scrobbles.userId], references: [users.id] }),
   track: one(tracks, { fields: [scrobbles.trackId], references: [tracks.id] }),
 }));
+
+export type Artist = typeof artists.$inferSelect;
+export type Album = typeof albums.$inferSelect;
+export type Track = typeof tracks.$inferSelect;
+export type User = typeof users.$inferSelect;
+export type Scrobble = typeof scrobbles.$inferSelect;
