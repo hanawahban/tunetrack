@@ -22,10 +22,16 @@ export function decodeCursor(cursor: string | undefined): Cursor | undefined {
 }
 
 export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 100;
+
+/** Clamps a caller-supplied limit into [1, MAX_PAGE_SIZE] so a huge or missing limit can't force a fetch-all. */
+export function resolveLimit(raw?: number): number {
+  return Math.min(Math.max(1, Math.trunc(raw ?? DEFAULT_PAGE_SIZE)), MAX_PAGE_SIZE);
+}
 
 export const paginationQuery = t.Object({
   cursor: t.Optional(t.String()),
-  limit: t.Optional(t.Numeric()),
+  limit: t.Optional(t.Numeric({ minimum: 1 })),
 });
 
 export function paginatedResponse<T extends TSchema>(itemSchema: T) {

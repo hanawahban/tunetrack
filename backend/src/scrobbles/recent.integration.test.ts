@@ -27,10 +27,11 @@ describe('GET /scrobbles/recent', () => {
 
     const recentRes = await get('/scrobbles/recent', { token: listenerToken });
     expect(recentRes.status).toBe(200);
-    const scrobbles = await json<{ track: { id: number; album: { id: number; artist: { id: number } } } }[]>(
-      recentRes,
-    );
-    const scrobble = scrobbles[0]!;
+    const body = await json<{
+      items: { track: { id: number; album: { id: number; artist: { id: number } } } }[];
+      nextCursor: string | null;
+    }>(recentRes);
+    const scrobble = body.items[0]!;
     expect(scrobble.track.id).toBe(track.id);
     expect(scrobble.track.album.id).toBe(album.id);
     expect(scrobble.track.album.artist.id).toBe(artist.id);

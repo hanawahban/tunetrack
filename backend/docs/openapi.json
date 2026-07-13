@@ -617,6 +617,7 @@
           },
           {
             "schema": {
+              "minimum": 1,
               "anyOf": [
                 {
                   "format": "numeric",
@@ -624,6 +625,7 @@
                   "type": "string"
                 },
                 {
+                  "minimum": 1,
                   "type": "number"
                 }
               ]
@@ -2352,6 +2354,7 @@
           },
           {
             "schema": {
+              "minimum": 1,
               "anyOf": [
                 {
                   "format": "numeric",
@@ -2359,6 +2362,7 @@
                   "type": "string"
                 },
                 {
+                  "minimum": 1,
                   "type": "number"
                 }
               ]
@@ -6091,6 +6095,7 @@
           },
           {
             "schema": {
+              "minimum": 1,
               "anyOf": [
                 {
                   "format": "numeric",
@@ -6098,6 +6103,7 @@
                   "type": "string"
                 },
                 {
+                  "minimum": 1,
                   "type": "number"
                 }
               ]

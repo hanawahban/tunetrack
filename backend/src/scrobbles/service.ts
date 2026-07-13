@@ -1,7 +1,7 @@
 import { and, desc, eq, lt, or } from 'drizzle-orm';
 import { db } from '../db';
 import { scrobbles, type Album, type Artist, type Scrobble, type Track } from '../db/schema';
-import { DEFAULT_PAGE_SIZE, encodeCursor, type Cursor } from '../common/pagination';
+import { encodeCursor, resolveLimit, type Cursor } from '../common/pagination';
 
 type TrackWithNesting = Track & { album?: Album & { artist?: Artist } };
 
@@ -11,7 +11,8 @@ export abstract class ScrobblesService {
     return ScrobblesService.serialize(scrobble!);
   }
 
-  static async findRecent(userId: number, cursor?: Cursor, limit = DEFAULT_PAGE_SIZE) {
+  static async findRecent(userId: number, cursor?: Cursor, limit?: number) {
+    const pageSize = resolveLimit(limit);
     const cursorWhere = cursor
       ? or(
           lt(scrobbles.playedAt, cursor.sortValue),
@@ -23,12 +24,12 @@ export abstract class ScrobblesService {
     const rows = await db.query.scrobbles.findMany({
       where,
       orderBy: [desc(scrobbles.playedAt), desc(scrobbles.id)],
-      limit: limit + 1,
+      limit: pageSize + 1,
       with: { track: { with: { album: { with: { artist: true } } } } },
     });
 
-    const hasMore = rows.length > limit;
-    const page = hasMore ? rows.slice(0, limit) : rows;
+    const hasMore = rows.length > pageSize;
+    const page = hasMore ? rows.slice(0, pageSize) : rows;
     const last = page.at(-1);
     const nextCursor = hasMore && last ? encodeCursor(last.playedAt, last.id) : null;
 
