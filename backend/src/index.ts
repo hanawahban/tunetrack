@@ -5,6 +5,9 @@ import { cors } from '@elysiajs/cors';
 import { swagger } from '@elysiajs/swagger';
 import { authRoutes } from './auth/routes';
 import { artistsRoutes } from './artists';
+import { albumsRoutes } from './albums';
+import { tracksRoutes } from './tracks';
+import { scrobblesRoutes } from './scrobbles';
 
 const app = new Elysia()
   .use(cors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:5173' }))
@@ -28,6 +31,9 @@ const app = new Elysia()
   .get('/health', () => ({ status: 'ok' }))
   .use(authRoutes)
   .use(artistsRoutes)
+  .use(albumsRoutes)
+  .use(tracksRoutes)
+  .use(scrobblesRoutes)
   .listen(process.env.PORT ?? 3000);
 
 const spec = await app
