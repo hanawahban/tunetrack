@@ -6853,6 +6853,111 @@
           }
         }
       }
+    },
+    "/stats/top-artists": {
+      "get": {
+        "responses": {
+          "200": {
+            "items": {
+              "type": "object",
+              "required": [
+                "artistId",
+                "name",
+                "playCount"
+              ],
+              "properties": {
+                "artistId": {
+                  "type": "number"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "playCount": {
+                  "type": "number"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "artistId",
+                      "name",
+                      "playCount"
+                    ],
+                    "properties": {
+                      "artistId": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "playCount": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "multipart/form-data": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "artistId",
+                      "name",
+                      "playCount"
+                    ],
+                    "properties": {
+                      "artistId": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "playCount": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "artistId",
+                      "name",
+                      "playCount"
+                    ],
+                    "properties": {
+                      "artistId": {
+                        "type": "number"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "playCount": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getStatsTop-artists",
+        "tags": [
+          "Stats"
+        ]
+      }
     }
   }
 }
