@@ -1,38 +1,26 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from '../db';
-import { scrobbles } from '../db/schema';
+import { scrobbles, type Album, type Artist, type Scrobble, type Track } from '../db/schema';
 
-type ScrobbleRow = { id: number; userId: number; trackId: number; playedAt: Date };
-type TrackRow = { id: number; title: string; albumId: number; createdAt: Date };
-type AlbumRow = {
-  id: number;
-  title: string;
-  releaseYear: number | null;
-  imageUrl: string | null;
-  artistId: number;
-  createdAt: Date;
-};
-type ArtistRow = { id: number; name: string; createdAt: Date };
+type TrackWithNesting = Track & { album?: Album & { artist?: Artist } };
 
-type TrackWithNesting = TrackRow & { album?: AlbumRow & { artist?: ArtistRow } };
-
-class ScrobblesService {
-  async create(userId: number, trackId: number) {
+export abstract class ScrobblesService {
+  static async create(userId: number, trackId: number) {
     const [scrobble] = await db.insert(scrobbles).values({ userId, trackId }).returning();
-    return this.serialize(scrobble!);
+    return ScrobblesService.serialize(scrobble!);
   }
 
-  async findRecent(userId: number, take = 20) {
+  static async findRecent(userId: number, take = 20) {
     const rows = await db.query.scrobbles.findMany({
       where: eq(scrobbles.userId, userId),
       orderBy: [desc(scrobbles.playedAt)],
       limit: take,
       with: { track: { with: { album: { with: { artist: true } } } } },
     });
-    return rows.map((row) => this.serialize(row, row.track));
+    return rows.map((row) => ScrobblesService.serialize(row, row.track));
   }
 
-  private serialize(scrobble: ScrobbleRow, track?: TrackWithNesting) {
+  private static serialize(scrobble: Scrobble, track?: TrackWithNesting) {
     const base = {
       id: scrobble.id,
       userId: scrobble.userId,
@@ -40,10 +28,10 @@ class ScrobblesService {
       playedAt: scrobble.playedAt.toISOString(),
     };
     if (!track) return base;
-    return { ...base, track: this.serializeTrack(track) };
+    return { ...base, track: ScrobblesService.serializeTrack(track) };
   }
 
-  private serializeTrack(track: TrackWithNesting) {
+  private static serializeTrack(track: TrackWithNesting) {
     const base = {
       id: track.id,
       title: track.title,
@@ -51,10 +39,10 @@ class ScrobblesService {
       createdAt: track.createdAt.toISOString(),
     };
     if (!track.album) return base;
-    return { ...base, album: this.serializeAlbum(track.album) };
+    return { ...base, album: ScrobblesService.serializeAlbum(track.album) };
   }
 
-  private serializeAlbum(album: AlbumRow & { artist?: ArtistRow }) {
+  private static serializeAlbum(album: Album & { artist?: Artist }) {
     const base = {
       id: album.id,
       title: album.title,
@@ -64,8 +52,9 @@ class ScrobblesService {
       createdAt: album.createdAt.toISOString(),
     };
     if (!album.artist) return base;
-    return { ...base, artist: { ...album.artist, createdAt: album.artist.createdAt.toISOString() } };
+    return {
+      ...base,
+      artist: { ...album.artist, createdAt: album.artist.createdAt.toISOString() },
+    };
   }
 }
-
-export const scrobblesService = new ScrobblesService();

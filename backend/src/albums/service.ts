@@ -1,17 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { albums } from '../db/schema';
-
-type AlbumRow = {
-  id: number;
-  title: string;
-  releaseYear: number | null;
-  imageUrl: string | null;
-  artistId: number;
-  createdAt: Date;
-};
-type ArtistRow = { id: number; name: string; createdAt: Date };
-type TrackRow = { id: number; title: string; albumId: number; createdAt: Date };
+import { albums, type Album, type Artist, type Track } from '../db/schema';
 
 type AlbumInput = {
   title: string;
@@ -20,39 +9,39 @@ type AlbumInput = {
   artistId: number;
 };
 
-class AlbumsService {
-  async create(dto: AlbumInput) {
+export abstract class AlbumsService {
+  static async create(dto: AlbumInput) {
     const [album] = await db.insert(albums).values(dto).returning();
-    return this.serialize(album!);
+    return AlbumsService.serialize(album!);
   }
 
-  async findAll() {
+  static async findAll() {
     const rows = await db.query.albums.findMany({ with: { artist: true, tracks: true } });
-    return rows.map((row) => this.serialize(row, row.artist, row.tracks));
+    return rows.map((row) => AlbumsService.serialize(row, row.artist, row.tracks));
   }
 
-  async findById(id: number) {
+  static async findById(id: number) {
     const album = await db.query.albums.findFirst({
       where: eq(albums.id, id),
       with: { artist: true, tracks: true },
     });
     if (!album) return undefined;
-    return this.serialize(album, album.artist, album.tracks);
+    return AlbumsService.serialize(album, album.artist, album.tracks);
   }
 
-  async update(id: number, dto: Partial<AlbumInput>) {
+  static async update(id: number, dto: Partial<AlbumInput>) {
     const [updated] = await db.update(albums).set(dto).where(eq(albums.id, id)).returning();
     if (!updated) return undefined;
-    return this.serialize(updated);
+    return AlbumsService.serialize(updated);
   }
 
-  async remove(id: number) {
+  static async remove(id: number) {
     const [deleted] = await db.delete(albums).where(eq(albums.id, id)).returning();
     if (!deleted) return undefined;
-    return this.serialize(deleted);
+    return AlbumsService.serialize(deleted);
   }
 
-  private serialize(album: AlbumRow, artist?: ArtistRow, tracks?: TrackRow[]) {
+  private static serialize(album: Album, artist?: Artist, tracks?: Track[]) {
     const base = {
       id: album.id,
       title: album.title,
@@ -70,5 +59,3 @@ class AlbumsService {
     };
   }
 }
-
-export const albumsService = new AlbumsService();

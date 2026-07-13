@@ -3,7 +3,7 @@ import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
 import { authGuard } from '../auth/guard';
-import { tracksService } from './service';
+import { TracksService } from './service';
 import { createTrackBody, trackIdParam, trackResponse, updateTrackBody } from './model';
 
 export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
@@ -12,7 +12,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     '/',
     async ({ body }) => {
       try {
-        return status(201, await tracksService.create(body));
+        return status(201, await TracksService.create(body));
       } catch (err) {
         if (pgErrorCode(err) === PG_FOREIGN_KEY_VIOLATION) {
           return httpError(404, `Album ${body.albumId} not found`);
@@ -28,13 +28,13 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
   )
   .get(
     '/',
-    () => tracksService.findAll(),
+    () => TracksService.findAll(),
     { response: { 200: t.Array(trackResponse) }, auth: true },
   )
   .get(
     '/:id',
     async ({ params }) => {
-      const track = await tracksService.findById(params.id);
+      const track = await TracksService.findById(params.id);
       if (!track) return httpError(404, `Track ${params.id} not found`);
       return status(200, track);
     },
@@ -48,7 +48,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     '/:id',
     async ({ params, body }) => {
       try {
-        const updated = await tracksService.update(params.id, body);
+        const updated = await TracksService.update(params.id, body);
         if (!updated) return httpError(404, `Track ${params.id} not found`);
         return status(200, updated);
       } catch (err) {
@@ -68,7 +68,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
   .delete(
     '/:id',
     async ({ params }) => {
-      const deleted = await tracksService.remove(params.id);
+      const deleted = await TracksService.remove(params.id);
       if (!deleted) return httpError(404, `Track ${params.id} not found`);
       return status(200, deleted);
     },

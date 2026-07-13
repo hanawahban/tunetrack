@@ -3,7 +3,7 @@ import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
 import { authGuard } from '../auth/guard';
-import { scrobblesService } from './service';
+import { ScrobblesService } from './service';
 import { createScrobbleBody, scrobbleResponse } from './model';
 
 export const scrobblesRoutes = new Elysia({ prefix: '/scrobbles', tags: ['Scrobbles'] })
@@ -12,7 +12,7 @@ export const scrobblesRoutes = new Elysia({ prefix: '/scrobbles', tags: ['Scrobb
     '/',
     async ({ body, user }) => {
       try {
-        return status(201, await scrobblesService.create(user.id, body.trackId));
+        return status(201, await ScrobblesService.create(user.id, body.trackId));
       } catch (err) {
         if (pgErrorCode(err) === PG_FOREIGN_KEY_VIOLATION) {
           return httpError(404, `Track ${body.trackId} not found`);
@@ -28,6 +28,6 @@ export const scrobblesRoutes = new Elysia({ prefix: '/scrobbles', tags: ['Scrobb
   )
   .get(
     '/recent',
-    ({ user }) => scrobblesService.findRecent(user.id),
+    ({ user }) => ScrobblesService.findRecent(user.id),
     { response: { 200: t.Array(scrobbleResponse) }, auth: true },
   );
