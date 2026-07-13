@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, lt, or } from 'drizzle-orm';
 import { db } from '../db';
 import { artists } from '../db/schema';
+import { DEFAULT_PAGE_SIZE, encodeCursor, type Cursor } from '../common/pagination';
 
 type ArtistRow = { id: number; name: string; createdAt: Date };
 type AlbumRow = {
@@ -18,9 +19,24 @@ class ArtistsService {
     return this.serialize(artist!);
   }
 
-  async findAll() {
-    const rows = await db.query.artists.findMany({ with: { albums: true } });
-    return rows.map((row) => this.serialize(row, row.albums));
+  async findAll(cursor?: Cursor, limit = DEFAULT_PAGE_SIZE) {
+    const cursorWhere = cursor
+      ? or(lt(artists.createdAt, cursor.sortValue), and(eq(artists.createdAt, cursor.sortValue), lt(artists.id, cursor.id)))
+      : undefined;
+
+    const rows = await db.query.artists.findMany({
+      where: cursorWhere,
+      orderBy: [desc(artists.createdAt), desc(artists.id)],
+      limit: limit + 1,
+      with: { albums: true },
+    });
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page.at(-1);
+    const nextCursor = hasMore && last ? encodeCursor(last.createdAt, last.id) : null;
+
+    return { items: page.map((row) => this.serialize(row, row.albums)), nextCursor };
   }
 
   async findById(id: number) {

@@ -1,4 +1,5 @@
 import { t } from 'elysia';
+import { paginatedResponse } from '../common/pagination';
 
 export const artistSummary = t.Object({
   id: t.Number(),
@@ -36,3 +37,5 @@ export const updateAlbumBody = t.Partial(createAlbumBody);
 export const albumIdParam = t.Object({
   id: t.Number(),
 });
+
+export const albumListResponse = paginatedResponse(albumResponse);

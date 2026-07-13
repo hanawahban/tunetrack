@@ -1,8 +1,9 @@
 import { Elysia, status, t } from 'elysia';
 import { httpError } from '../common/http-error';
 import { authGuard } from '../auth/guard';
+import { decodeCursor, paginationQuery } from '../common/pagination';
 import { artistsService } from './service';
-import { artistBody, artistIdParam, artistResponse, notFoundResponse } from './model';
+import { artistBody, artistIdParam, artistListResponse, artistResponse, notFoundResponse } from './model';
 
 export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] })
   .use(authGuard)
@@ -13,8 +14,8 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   )
   .get(
     '/',
-    () => artistsService.findAll(),
-    { response: { 200: t.Array(artistResponse) }, auth: true },
+    ({ query }) => artistsService.findAll(decodeCursor(query.cursor), query.limit),
+    { query: paginationQuery, response: { 200: artistListResponse }, auth: true },
   )
   .get(
     '/:id',

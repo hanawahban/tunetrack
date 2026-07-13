@@ -1,4 +1,5 @@
 import { t } from 'elysia';
+import { paginatedResponse } from '../common/pagination';
 
 export const artistSummary = t.Object({
   id: t.Number(),
@@ -35,3 +36,5 @@ export const scrobbleResponse = t.Object({
 export const createScrobbleBody = t.Object({
   trackId: t.Number(),
 });
+
+export const scrobbleListResponse = paginatedResponse(scrobbleResponse);
