@@ -8,6 +8,7 @@ import { artistsRoutes } from './artists';
 import { albumsRoutes } from './albums';
 import { tracksRoutes } from './tracks';
 import { scrobblesRoutes } from './scrobbles';
+import { usersRoutes } from './users';
 
 const app = new Elysia()
   .use(cors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:5173' }))
@@ -34,6 +35,7 @@ const app = new Elysia()
   .use(albumsRoutes)
   .use(tracksRoutes)
   .use(scrobblesRoutes)
+  .use(usersRoutes)
   .listen(process.env.PORT ?? 3000);
 
 const spec = await app

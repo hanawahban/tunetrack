@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { t } from 'elysia';
 import { db } from '../db';
-import { users } from '../db/schema';
+import { users, type Role } from '../db/schema';
 
 export const SAFE_SELECT = {
   id: users.id,
@@ -17,7 +17,7 @@ export const userResponse = t.Object({
   createdAt: t.String({ format: 'date-time' }),
 });
 
-type SafeUser = { id: number; email: string; role: string; createdAt: Date };
+type SafeUser = { id: number; email: string; role: Role; createdAt: Date };
 
 /** Maps a DB row's Date column to the ISO string the response schema (and Orval) expect on the wire. */
 export function toUserResponse(user: SafeUser) {

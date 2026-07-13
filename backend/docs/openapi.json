@@ -6562,6 +6562,297 @@
           "Scrobbles"
         ]
       }
+    },
+    "/users/{id}/role": {
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "anyOf": [
+                        {
+                          "const": "ADMIN",
+                          "type": "string"
+                        },
+                        {
+                          "const": "CURATOR",
+                          "type": "string"
+                        },
+                        {
+                          "const": "LISTENER",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "role",
+                    "createdAt"
+                  ]
+                }
+              },
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "anyOf": [
+                        {
+                          "const": "ADMIN",
+                          "type": "string"
+                        },
+                        {
+                          "const": "CURATOR",
+                          "type": "string"
+                        },
+                        {
+                          "const": "LISTENER",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "role",
+                    "createdAt"
+                  ]
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "anyOf": [
+                        {
+                          "const": "ADMIN",
+                          "type": "string"
+                        },
+                        {
+                          "const": "CURATOR",
+                          "type": "string"
+                        },
+                        {
+                          "const": "LISTENER",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "role",
+                    "createdAt"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              },
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "statusCode",
+                    "message",
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchUsersByIdRole",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "role"
+                ],
+                "properties": {
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "CURATOR",
+                        "type": "string"
+                      },
+                      {
+                        "const": "LISTENER",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "role"
+                ],
+                "properties": {
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "CURATOR",
+                        "type": "string"
+                      },
+                      {
+                        "const": "LISTENER",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "role"
+                ],
+                "properties": {
+                  "role": {
+                    "anyOf": [
+                      {
+                        "const": "ADMIN",
+                        "type": "string"
+                      },
+                      {
+                        "const": "CURATOR",
+                        "type": "string"
+                      },
+                      {
+                        "const": "LISTENER",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
