@@ -12,6 +12,9 @@ export default defineConfig({
       client: "react-query",
       httpClient: "fetch",
       override: {
+        contentType: {
+          include: ["application/json"],
+        },
         mutator: {
           path: "src/lib/custom-fetch.ts",
           name: "customFetch",

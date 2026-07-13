@@ -6,15 +6,15 @@ import { z } from "zod"
 import { toast } from "sonner"
 
 import {
-  useAlbumsControllerCreate,
-  useAlbumsControllerUpdate,
-  getAlbumsControllerFindAllQueryKey,
-  getAlbumsControllerFindOneQueryKey,
+  usePostAlbums,
+  usePatchAlbumsById,
+  getGetAlbumsQueryKey,
+  getGetAlbumsByIdQueryKey,
 } from "@/lib/api/generated/albums/albums"
 import {
-  useArtistsControllerFindAll,
-  useArtistsControllerCreate,
-  getArtistsControllerFindAllQueryKey,
+  useGetArtists,
+  usePostArtists,
+  getGetArtistsQueryKey,
 } from "@/lib/api/generated/artists/artists"
 import type { AlbumResponseDto } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
@@ -66,10 +66,10 @@ export function AlbumFormDialog({
   defaultArtistId?: number
 }) {
   const queryClient = useQueryClient()
-  const { data: artists } = useArtistsControllerFindAll()
-  const createArtist = useArtistsControllerCreate()
-  const createAlbum = useAlbumsControllerCreate()
-  const updateAlbum = useAlbumsControllerUpdate()
+  const { data: artists } = useGetArtists()
+  const createArtist = usePostArtists()
+  const createAlbum = usePostAlbums()
+  const updateAlbum = usePatchAlbumsById()
 
   const form = useForm<AlbumFormValues>({
     resolver: zodResolver(albumFormSchema),
@@ -102,7 +102,7 @@ export function AlbumFormDialog({
 
       if (!artistId && values.newArtistName) {
         const created = await createArtist.mutateAsync({ data: { name: values.newArtistName } })
-        queryClient.invalidateQueries({ queryKey: getArtistsControllerFindAllQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() })
         artistId = created.id
       }
 
@@ -117,11 +117,11 @@ export function AlbumFormDialog({
 
       if (album) {
         await updateAlbum.mutateAsync({ id: album.id, data: dto })
-        queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindOneQueryKey(album.id) })
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(album.id) })
       } else {
         await createAlbum.mutateAsync({ data: dto })
       }
-      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindAllQueryKey() })
+      queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
 
       toast.success(album ? "Sleeve updated." : "New record shelved.")
       onOpenChange(false)

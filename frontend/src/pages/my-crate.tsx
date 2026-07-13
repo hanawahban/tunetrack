@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 import { Disc3, Receipt } from "lucide-react"
 import { toast } from "sonner"
 
-import { useScrobblesControllerFindRecent } from "@/lib/api/generated/scrobbles/scrobbles"
-import { useStatsControllerTopArtists } from "@/lib/api/generated/stats/stats"
+import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
+import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import { ApiError } from "@/lib/api-error"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -21,8 +21,8 @@ function timeAgo(iso: string) {
 
 export function MyCratePage() {
   const { data: scrobbles, isPending: scrobblesPending, error: scrobblesError } =
-    useScrobblesControllerFindRecent()
-  const { data: topArtists, isPending: topArtistsPending } = useStatsControllerTopArtists()
+    useGetScrobblesRecent()
+  const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
 
   React.useEffect(() => {
     if (scrobblesError) {

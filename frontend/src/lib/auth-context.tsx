@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useAuthControllerLogin, useAuthControllerRegister } from "@/lib/api/generated/auth/auth"
+import { usePostAuthLogin, usePostAuthRegister } from "@/lib/api/generated/auth/auth"
 import type { UserResponseDtoRole } from "@/lib/api/generated/model"
 import { auth } from "@/lib/auth-token"
 import { decodeJwt, isExpired } from "@/lib/jwt"
@@ -32,8 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<Session | null>(() =>
     sessionFromToken(auth.getToken()),
   )
-  const loginMutation = useAuthControllerLogin()
-  const registerMutation = useAuthControllerRegister()
+  const loginMutation = usePostAuthLogin()
+  const registerMutation = usePostAuthRegister()
 
   const login = React.useCallback(
     async (email: string, password: string) => {

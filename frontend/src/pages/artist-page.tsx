@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom"
 import { ArrowLeft, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
-import { useArtistsControllerFindOne } from "@/lib/api/generated/artists/artists"
+import { useGetArtistsById } from "@/lib/api/generated/artists/artists"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 export function ArtistPage() {
   const { id } = useParams<{ id: string }>()
   const artistId = Number(id)
-  const { data: artist, error } = useArtistsControllerFindOne(artistId)
+  const { data: artist, error } = useGetArtistsById(artistId)
 
   React.useEffect(() => {
     if (error) {

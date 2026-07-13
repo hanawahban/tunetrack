@@ -6,10 +6,10 @@ import { z } from "zod"
 import { toast } from "sonner"
 
 import {
-  useTracksControllerCreate,
-  useTracksControllerUpdate,
+  usePostTracks,
+  usePatchTracksById,
 } from "@/lib/api/generated/tracks/tracks"
-import { getAlbumsControllerFindOneQueryKey } from "@/lib/api/generated/albums/albums"
+import { getGetAlbumsByIdQueryKey } from "@/lib/api/generated/albums/albums"
 import type { TrackResponseDto } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
 import {
@@ -42,8 +42,8 @@ export function TrackFormDialog({
   track?: TrackResponseDto
 }) {
   const queryClient = useQueryClient()
-  const createTrack = useTracksControllerCreate()
-  const updateTrack = useTracksControllerUpdate()
+  const createTrack = usePostTracks()
+  const updateTrack = usePatchTracksById()
 
   const form = useForm<TrackFormValues>({
     resolver: zodResolver(trackFormSchema),
@@ -63,7 +63,7 @@ export function TrackFormDialog({
       } else {
         await createTrack.mutateAsync({ data: { title: values.title, albumId } })
       }
-      queryClient.invalidateQueries({ queryKey: getAlbumsControllerFindOneQueryKey(albumId) })
+      queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
 
       toast.success(track ? "Track relabeled." : "Track pressed onto the record.")
       onOpenChange(false)
