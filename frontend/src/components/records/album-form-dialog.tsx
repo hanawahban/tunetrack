@@ -203,7 +203,7 @@ export function AlbumFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {artists?.map((a) => (
+                      {artists?.items.map((a) => (
                         <SelectItem key={a.id} value={a.id.toString()}>
                           {a.name}
                         </SelectItem>

@@ -606,306 +606,324 @@
         }
       },
       "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "minimum": 1,
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "minimum": 1,
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "name",
-                "createdAt"
-              ],
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "createdAt": {
-                  "format": "date-time",
-                  "type": "string"
-                },
-                "albums": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "title",
-                      "releaseYear",
-                      "imageUrl",
-                      "artistId",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "releaseYear": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "imageUrl": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "artistId": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "name",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "albums": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "releaseYear",
-                            "imageUrl",
-                            "artistId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "releaseYear": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "name",
+                          "createdAt"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "albums": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "releaseYear",
+                                "imageUrl",
+                                "artistId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
                                   "type": "number"
                                 },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "imageUrl": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                                "title": {
                                   "type": "string"
                                 },
-                                {
-                                  "type": "null"
+                                "releaseYear": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "imageUrl": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "artistId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
                                 }
-                              ]
-                            },
-                            "artistId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "multipart/form-data": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "name",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "albums": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "releaseYear",
-                            "imageUrl",
-                            "artistId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "releaseYear": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "name",
+                          "createdAt"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "albums": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "releaseYear",
+                                "imageUrl",
+                                "artistId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
                                   "type": "number"
                                 },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "imageUrl": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                                "title": {
                                   "type": "string"
                                 },
-                                {
-                                  "type": "null"
+                                "releaseYear": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "imageUrl": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "artistId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
                                 }
-                              ]
-                            },
-                            "artistId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "name",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "albums": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "releaseYear",
-                            "imageUrl",
-                            "artistId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "releaseYear": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "name",
+                          "createdAt"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "albums": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "releaseYear",
+                                "imageUrl",
+                                "artistId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
                                   "type": "number"
                                 },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
-                            "imageUrl": {
-                              "nullable": true,
-                              "anyOf": [
-                                {
+                                "title": {
                                   "type": "string"
                                 },
-                                {
-                                  "type": "null"
+                                "releaseYear": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "imageUrl": {
+                                  "nullable": true,
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "artistId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
                                 }
-                              ]
-                            },
-                            "artistId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               }
             }
@@ -2325,402 +2343,396 @@
         }
       },
       "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "minimum": 1,
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
+                  "type": "string"
+                },
+                {
+                  "minimum": 1,
+                  "type": "number"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
         "responses": {
           "200": {
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "title",
-                "releaseYear",
-                "imageUrl",
-                "artistId",
-                "createdAt"
-              ],
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "releaseYear": {
-                  "nullable": true,
-                  "anyOf": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "imageUrl": {
-                  "nullable": true,
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "artistId": {
-                  "type": "number"
-                },
-                "createdAt": {
-                  "format": "date-time",
-                  "type": "string"
-                },
-                "artist": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "name",
-                    "createdAt"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "number"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "createdAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    }
-                  }
-                },
-                "tracks": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "title",
-                      "albumId",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "albumId": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "title",
-                      "releaseYear",
-                      "imageUrl",
-                      "artistId",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "releaseYear": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "imageUrl": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "artistId": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "artist": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "name",
+                          "title",
+                          "releaseYear",
+                          "imageUrl",
+                          "artistId",
                           "createdAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "name": {
+                          "title": {
                             "type": "string"
+                          },
+                          "releaseYear": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "artistId": {
+                            "type": "number"
                           },
                           "createdAt": {
                             "format": "date-time",
                             "type": "string"
-                          }
-                        }
-                      },
-                      "tracks": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "albumId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "albumId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                          },
+                          "artist": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "name",
+                              "createdAt"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "tracks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "albumId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "number"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "albumId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                }
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "multipart/form-data": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "title",
-                      "releaseYear",
-                      "imageUrl",
-                      "artistId",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "releaseYear": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "imageUrl": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "artistId": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "artist": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "name",
+                          "title",
+                          "releaseYear",
+                          "imageUrl",
+                          "artistId",
                           "createdAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "name": {
+                          "title": {
                             "type": "string"
+                          },
+                          "releaseYear": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "artistId": {
+                            "type": "number"
                           },
                           "createdAt": {
                             "format": "date-time",
                             "type": "string"
-                          }
-                        }
-                      },
-                      "tracks": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "albumId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "albumId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                          },
+                          "artist": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "name",
+                              "createdAt"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "tracks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "albumId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "number"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "albumId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                }
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "title",
-                      "releaseYear",
-                      "imageUrl",
-                      "artistId",
-                      "createdAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "releaseYear": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "imageUrl": {
-                        "nullable": true,
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "artistId": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "artist": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "name",
+                          "title",
+                          "releaseYear",
+                          "imageUrl",
+                          "artistId",
                           "createdAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "name": {
+                          "title": {
                             "type": "string"
+                          },
+                          "releaseYear": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "artistId": {
+                            "type": "number"
                           },
                           "createdAt": {
                             "format": "date-time",
                             "type": "string"
-                          }
-                        }
-                      },
-                      "tracks": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "title",
-                            "albumId",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "albumId": {
-                              "type": "number"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
+                          },
+                          "artist": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "name",
+                              "createdAt"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "tracks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": [
+                                "id",
+                                "title",
+                                "albumId",
+                                "createdAt"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": "number"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "albumId": {
+                                  "type": "number"
+                                },
+                                "createdAt": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                }
+                              }
                             }
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               }
             }
@@ -6072,180 +6084,72 @@
     },
     "/scrobbles/recent": {
       "get": {
-        "responses": {
-          "200": {
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "userId",
-                "trackId",
-                "playedAt"
-              ],
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "userId": {
-                  "type": "number"
-                },
-                "trackId": {
-                  "type": "number"
-                },
-                "playedAt": {
-                  "format": "date-time",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "minimum": 1,
+              "anyOf": [
+                {
+                  "format": "numeric",
+                  "default": 0,
                   "type": "string"
                 },
-                "track": {
-                  "type": "object",
-                  "required": [
-                    "id",
-                    "title",
-                    "albumId",
-                    "createdAt"
-                  ],
-                  "properties": {
-                    "id": {
-                      "type": "number"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "albumId": {
-                      "type": "number"
-                    },
-                    "createdAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    },
-                    "album": {
-                      "type": "object",
-                      "required": [
-                        "id",
-                        "title",
-                        "releaseYear",
-                        "imageUrl",
-                        "artistId",
-                        "createdAt"
-                      ],
-                      "properties": {
-                        "id": {
-                          "type": "number"
-                        },
-                        "title": {
-                          "type": "string"
-                        },
-                        "releaseYear": {
-                          "nullable": true,
-                          "anyOf": [
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "imageUrl": {
-                          "nullable": true,
-                          "anyOf": [
-                            {
-                              "type": "string"
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        },
-                        "artistId": {
-                          "type": "number"
-                        },
-                        "createdAt": {
-                          "format": "date-time",
-                          "type": "string"
-                        },
-                        "artist": {
-                          "type": "object",
-                          "required": [
-                            "id",
-                            "name",
-                            "createdAt"
-                          ],
-                          "properties": {
-                            "id": {
-                              "type": "number"
-                            },
-                            "name": {
-                              "type": "string"
-                            },
-                            "createdAt": {
-                              "format": "date-time",
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+                {
+                  "minimum": 1,
+                  "type": "number"
                 }
-              }
+              ]
             },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "userId",
-                      "trackId",
-                      "playedAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "userId": {
-                        "type": "number"
-                      },
-                      "trackId": {
-                        "type": "number"
-                      },
-                      "playedAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "track": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "title",
-                          "albumId",
-                          "createdAt"
+                          "userId",
+                          "trackId",
+                          "playedAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "title": {
-                            "type": "string"
-                          },
-                          "albumId": {
+                          "userId": {
                             "type": "number"
                           },
-                          "createdAt": {
+                          "trackId": {
+                            "type": "number"
+                          },
+                          "playedAt": {
                             "format": "date-time",
                             "type": "string"
                           },
-                          "album": {
+                          "track": {
                             "type": "object",
                             "required": [
                               "id",
                               "title",
-                              "releaseYear",
-                              "imageUrl",
-                              "artistId",
+                              "albumId",
                               "createdAt"
                             ],
                             "properties": {
@@ -6255,52 +6159,78 @@
                               "title": {
                                 "type": "string"
                               },
-                              "releaseYear": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "imageUrl": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "artistId": {
+                              "albumId": {
                                 "type": "number"
                               },
                               "createdAt": {
                                 "format": "date-time",
                                 "type": "string"
                               },
-                              "artist": {
+                              "album": {
                                 "type": "object",
                                 "required": [
                                   "id",
-                                  "name",
+                                  "title",
+                                  "releaseYear",
+                                  "imageUrl",
+                                  "artistId",
                                   "createdAt"
                                 ],
                                 "properties": {
                                   "id": {
                                     "type": "number"
                                   },
-                                  "name": {
+                                  "title": {
                                     "type": "string"
+                                  },
+                                  "releaseYear": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "imageUrl": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "artistId": {
+                                    "type": "number"
                                   },
                                   "createdAt": {
                                     "format": "date-time",
                                     "type": "string"
+                                  },
+                                  "artist": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "name",
+                                      "createdAt"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "number"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "createdAt": {
+                                        "format": "date-time",
+                                        "type": "string"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -6308,65 +6238,59 @@
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "multipart/form-data": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "userId",
-                      "trackId",
-                      "playedAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "userId": {
-                        "type": "number"
-                      },
-                      "trackId": {
-                        "type": "number"
-                      },
-                      "playedAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "track": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "title",
-                          "albumId",
-                          "createdAt"
+                          "userId",
+                          "trackId",
+                          "playedAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "title": {
-                            "type": "string"
-                          },
-                          "albumId": {
+                          "userId": {
                             "type": "number"
                           },
-                          "createdAt": {
+                          "trackId": {
+                            "type": "number"
+                          },
+                          "playedAt": {
                             "format": "date-time",
                             "type": "string"
                           },
-                          "album": {
+                          "track": {
                             "type": "object",
                             "required": [
                               "id",
                               "title",
-                              "releaseYear",
-                              "imageUrl",
-                              "artistId",
+                              "albumId",
                               "createdAt"
                             ],
                             "properties": {
@@ -6376,52 +6300,78 @@
                               "title": {
                                 "type": "string"
                               },
-                              "releaseYear": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "imageUrl": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "artistId": {
+                              "albumId": {
                                 "type": "number"
                               },
                               "createdAt": {
                                 "format": "date-time",
                                 "type": "string"
                               },
-                              "artist": {
+                              "album": {
                                 "type": "object",
                                 "required": [
                                   "id",
-                                  "name",
+                                  "title",
+                                  "releaseYear",
+                                  "imageUrl",
+                                  "artistId",
                                   "createdAt"
                                 ],
                                 "properties": {
                                   "id": {
                                     "type": "number"
                                   },
-                                  "name": {
+                                  "title": {
                                     "type": "string"
+                                  },
+                                  "releaseYear": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "imageUrl": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "artistId": {
+                                    "type": "number"
                                   },
                                   "createdAt": {
                                     "format": "date-time",
                                     "type": "string"
+                                  },
+                                  "artist": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "name",
+                                      "createdAt"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "number"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "createdAt": {
+                                        "format": "date-time",
+                                        "type": "string"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -6429,65 +6379,59 @@
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               },
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "required": [
-                      "id",
-                      "userId",
-                      "trackId",
-                      "playedAt"
-                    ],
-                    "properties": {
-                      "id": {
-                        "type": "number"
-                      },
-                      "userId": {
-                        "type": "number"
-                      },
-                      "trackId": {
-                        "type": "number"
-                      },
-                      "playedAt": {
-                        "format": "date-time",
-                        "type": "string"
-                      },
-                      "track": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
                         "type": "object",
                         "required": [
                           "id",
-                          "title",
-                          "albumId",
-                          "createdAt"
+                          "userId",
+                          "trackId",
+                          "playedAt"
                         ],
                         "properties": {
                           "id": {
                             "type": "number"
                           },
-                          "title": {
-                            "type": "string"
-                          },
-                          "albumId": {
+                          "userId": {
                             "type": "number"
                           },
-                          "createdAt": {
+                          "trackId": {
+                            "type": "number"
+                          },
+                          "playedAt": {
                             "format": "date-time",
                             "type": "string"
                           },
-                          "album": {
+                          "track": {
                             "type": "object",
                             "required": [
                               "id",
                               "title",
-                              "releaseYear",
-                              "imageUrl",
-                              "artistId",
+                              "albumId",
                               "createdAt"
                             ],
                             "properties": {
@@ -6497,52 +6441,78 @@
                               "title": {
                                 "type": "string"
                               },
-                              "releaseYear": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "number"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "imageUrl": {
-                                "nullable": true,
-                                "anyOf": [
-                                  {
-                                    "type": "string"
-                                  },
-                                  {
-                                    "type": "null"
-                                  }
-                                ]
-                              },
-                              "artistId": {
+                              "albumId": {
                                 "type": "number"
                               },
                               "createdAt": {
                                 "format": "date-time",
                                 "type": "string"
                               },
-                              "artist": {
+                              "album": {
                                 "type": "object",
                                 "required": [
                                   "id",
-                                  "name",
+                                  "title",
+                                  "releaseYear",
+                                  "imageUrl",
+                                  "artistId",
                                   "createdAt"
                                 ],
                                 "properties": {
                                   "id": {
                                     "type": "number"
                                   },
-                                  "name": {
+                                  "title": {
                                     "type": "string"
+                                  },
+                                  "releaseYear": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "imageUrl": {
+                                    "nullable": true,
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "artistId": {
+                                    "type": "number"
                                   },
                                   "createdAt": {
                                     "format": "date-time",
                                     "type": "string"
+                                  },
+                                  "artist": {
+                                    "type": "object",
+                                    "required": [
+                                      "id",
+                                      "name",
+                                      "createdAt"
+                                    ],
+                                    "properties": {
+                                      "id": {
+                                        "type": "number"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "createdAt": {
+                                        "format": "date-time",
+                                        "type": "string"
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -6550,8 +6520,23 @@
                           }
                         }
                       }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ]
                 }
               }
             }

@@ -1,6 +1,7 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, lt, or } from 'drizzle-orm';
 import { db } from '../db';
 import { scrobbles, type Album, type Artist, type Scrobble, type Track } from '../db/schema';
+import { encodeCursor, resolveLimit, type Cursor } from '../common/pagination';
 
 type TrackWithNesting = Track & { album?: Album & { artist?: Artist } };
 
@@ -10,14 +11,29 @@ export abstract class ScrobblesService {
     return ScrobblesService.serialize(scrobble!);
   }
 
-  static async findRecent(userId: number, take = 20) {
+  static async findRecent(userId: number, cursor?: Cursor, limit?: number) {
+    const pageSize = resolveLimit(limit);
+    const cursorWhere = cursor
+      ? or(
+          lt(scrobbles.playedAt, cursor.sortValue),
+          and(eq(scrobbles.playedAt, cursor.sortValue), lt(scrobbles.id, cursor.id)),
+        )
+      : undefined;
+    const where = cursorWhere ? and(eq(scrobbles.userId, userId), cursorWhere) : eq(scrobbles.userId, userId);
+
     const rows = await db.query.scrobbles.findMany({
-      where: eq(scrobbles.userId, userId),
-      orderBy: [desc(scrobbles.playedAt)],
-      limit: take,
+      where,
+      orderBy: [desc(scrobbles.playedAt), desc(scrobbles.id)],
+      limit: pageSize + 1,
       with: { track: { with: { album: { with: { artist: true } } } } },
     });
-    return rows.map((row) => ScrobblesService.serialize(row, row.track));
+
+    const hasMore = rows.length > pageSize;
+    const page = hasMore ? rows.slice(0, pageSize) : rows;
+    const last = page.at(-1);
+    const nextCursor = hasMore && last ? encodeCursor(last.playedAt, last.id) : null;
+
+    return { items: page.map((row) => ScrobblesService.serialize(row, row.track)), nextCursor };
   }
 
   private static serialize(scrobble: Scrobble, track?: TrackWithNesting) {

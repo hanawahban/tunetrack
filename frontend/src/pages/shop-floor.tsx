@@ -4,6 +4,7 @@ import { Search, Plus, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
 import { useGetAlbums } from "@/lib/api/generated/albums/albums"
+import type { GetAlbums200OneItemsItem } from "@/lib/api/generated/model"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
@@ -16,8 +17,15 @@ export function ShopFloorPage() {
   const { canCurate } = useAuth()
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
+  const [cursor, setCursor] = React.useState<string | undefined>(undefined)
+  const [albums, setAlbums] = React.useState<GetAlbums200OneItemsItem[]>([])
 
-  const { data: albums, isPending, error } = useGetAlbums()
+  const { data, isPending, isFetching, error } = useGetAlbums({ cursor })
+
+  React.useEffect(() => {
+    if (!data) return
+    setAlbums((prev) => (cursor ? [...prev, ...data.items] : data.items))
+  }, [data, cursor])
 
   React.useEffect(() => {
     if (error) {
@@ -26,7 +34,6 @@ export function ShopFloorPage() {
   }, [error])
 
   const filtered = React.useMemo(() => {
-    if (!albums) return null
     const q = query.trim().toLowerCase()
     if (!q) return albums
     return albums.filter(
@@ -62,7 +69,7 @@ export function ShopFloorPage() {
         />
       </div>
 
-      {isPending && (
+      {isPending && albums.length === 0 && (
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {Array.from({ length: 10 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square" />
@@ -70,7 +77,7 @@ export function ShopFloorPage() {
         </div>
       )}
 
-      {filtered?.length === 0 && (
+      {!isPending && filtered.length === 0 && (
         <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-shop-brass/30 py-16 text-center">
           <Disc3 className="size-8 text-shop-brass" />
           <p className="text-sm text-muted-foreground">
@@ -79,13 +86,21 @@ export function ShopFloorPage() {
         </div>
       )}
 
-      {filtered && filtered.length > 0 && (
+      {filtered.length > 0 && (
         <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((album) => (
             <Link key={album.id} to={`/albums/${album.id}`} className="shelf-lip">
               <VinylSleeve album={album} />
             </Link>
           ))}
+        </div>
+      )}
+
+      {!query && data?.nextCursor && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => setCursor(data.nextCursor!)} disabled={isFetching}>
+            {isFetching ? "Loading…" : "Load more"}
+          </Button>
         </div>
       )}
 

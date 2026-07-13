@@ -5,6 +5,7 @@ import { toast } from "sonner"
 
 import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
 import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
+import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -20,9 +21,21 @@ function timeAgo(iso: string) {
 }
 
 export function MyCratePage() {
-  const { data: scrobbles, isPending: scrobblesPending, error: scrobblesError } =
-    useGetScrobblesRecent()
+  const [cursor, setCursor] = React.useState<string | undefined>(undefined)
+  const [scrobbles, setScrobbles] = React.useState<GetScrobblesRecent200OneItemsItem[]>([])
+
+  const {
+    data: scrobblesPage,
+    isPending: scrobblesPending,
+    isFetching: scrobblesFetching,
+    error: scrobblesError,
+  } = useGetScrobblesRecent({ cursor })
   const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
+
+  React.useEffect(() => {
+    if (!scrobblesPage) return
+    setScrobbles((prev) => (cursor ? [...prev, ...scrobblesPage.items] : scrobblesPage.items))
+  }, [scrobblesPage, cursor])
 
   React.useEffect(() => {
     if (scrobblesError) {
@@ -60,7 +73,7 @@ export function MyCratePage() {
                 "repeating-linear-gradient(180deg, transparent 0 27px, oklch(0 0 0 / 0.05) 27px 28px)",
             }}
           >
-            {scrobblesPending && (
+            {scrobblesPending && scrobbles.length === 0 && (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-6 w-full bg-black/10" />
@@ -68,13 +81,13 @@ export function MyCratePage() {
               </div>
             )}
 
-            {scrobbles?.length === 0 && (
+            {!scrobblesPending && scrobbles.length === 0 && (
               <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
                 No spins logged yet. Open a record and hit play.
               </p>
             )}
 
-            {scrobbles?.map((s) => (
+            {scrobbles.map((s) => (
               <div
                 key={s.id}
                 className="text-catalog flex items-center justify-between gap-3 py-1 text-sm leading-7"
@@ -97,7 +110,20 @@ export function MyCratePage() {
               </div>
             ))}
 
-            {scrobbles && scrobbles.length > 0 && (
+            {scrobbles.length > 0 && scrobblesPage?.nextCursor && (
+              <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setCursor(scrobblesPage.nextCursor!)}
+                  disabled={scrobblesFetching}
+                  className="text-catalog text-[0.65rem] tracking-widest text-shop-ink/50 hover:text-shop-ink disabled:opacity-50"
+                >
+                  {scrobblesFetching ? "loading…" : "* * * load more * * *"}
+                </button>
+              </div>
+            )}
+
+            {scrobbles.length > 0 && !scrobblesPage?.nextCursor && (
               <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center text-[0.65rem] tracking-widest text-shop-ink/40">
                 * * * END OF RECEIPT * * *
               </div>

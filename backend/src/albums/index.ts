@@ -1,10 +1,11 @@
-import { Elysia, status, t } from 'elysia';
+import { Elysia, status } from 'elysia';
 import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
+import { decodeCursor, paginationQuery } from '../common/pagination';
 import { authGuard } from '../auth/guard';
 import { AlbumsService } from './service';
-import { albumIdParam, albumResponse, createAlbumBody, updateAlbumBody } from './model';
+import { albumIdParam, albumListResponse, albumResponse, createAlbumBody, updateAlbumBody } from './model';
 
 export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
   .use(authGuard)
@@ -28,8 +29,8 @@ export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
   )
   .get(
     '/',
-    () => AlbumsService.findAll(),
-    { response: { 200: t.Array(albumResponse) }, auth: true },
+    ({ query }) => AlbumsService.findAll(decodeCursor(query.cursor), query.limit),
+    { query: paginationQuery, response: { 200: albumListResponse }, auth: true },
   )
   .get(
     '/:id',

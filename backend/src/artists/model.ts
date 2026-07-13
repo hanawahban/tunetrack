@@ -1,4 +1,5 @@
 import { t } from 'elysia';
+import { paginatedResponse } from '../common/pagination';
 
 export const albumSummary = t.Object({
   id: t.Number(),
@@ -29,3 +30,5 @@ export const notFoundResponse = t.Object({
   message: t.String(),
   error: t.String(),
 });
+
+export const artistListResponse = paginatedResponse(artistResponse);

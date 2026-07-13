@@ -1,10 +1,11 @@
-import { Elysia, status, t } from 'elysia';
+import { Elysia, status } from 'elysia';
 import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
+import { decodeCursor, paginationQuery } from '../common/pagination';
 import { authGuard } from '../auth/guard';
 import { ScrobblesService } from './service';
-import { createScrobbleBody, scrobbleResponse } from './model';
+import { createScrobbleBody, scrobbleListResponse, scrobbleResponse } from './model';
 
 export const scrobblesRoutes = new Elysia({ prefix: '/scrobbles', tags: ['Scrobbles'] })
   .use(authGuard)
@@ -28,6 +29,6 @@ export const scrobblesRoutes = new Elysia({ prefix: '/scrobbles', tags: ['Scrobb
   )
   .get(
     '/recent',
-    ({ user }) => ScrobblesService.findRecent(user.id),
-    { response: { 200: t.Array(scrobbleResponse) }, auth: true },
+    ({ user, query }) => ScrobblesService.findRecent(user.id, decodeCursor(query.cursor), query.limit),
+    { query: paginationQuery, response: { 200: scrobbleListResponse }, auth: true },
   );
