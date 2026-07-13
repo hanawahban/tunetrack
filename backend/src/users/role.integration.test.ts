@@ -7,17 +7,32 @@ describe('PATCH /users/:id/role', () => {
   beforeEach(resetDb);
 
   test.each([
-    ['no token', null, 401],
-    ['listener token', 'LISTENER', 403],
-    ['curator token', 'CURATOR', 403],
-  ] as const)('%s -> %d', async (_label, requesterRole, expected) => {
-    const target = await registerAs('target@test.com', 'LISTENER');
+    ['no token', null, 'LISTENER', 401],
+    ['listener token', 'LISTENER', 'LISTENER', 403],
+    ['curator token', 'CURATOR', 'LISTENER', 403],
+    ['admin demoting self', 'ADMIN', 'SELF', 403],
+    ['admin demoting admin', 'ADMIN', 'ADMIN', 403],
+  ] as const)('%s -> %d', async (_label, requesterRole, targetKind, expected) => {
     let token: string | undefined;
+    let requesterId: number | undefined;
     if (requesterRole) {
-      await registerAs('requester@test.com', requesterRole);
+      const requester = await registerAs('requester@test.com', requesterRole);
+      requesterId = requester.id;
       token = await login('requester@test.com', 'password123');
     }
-    const res = await patch(`/users/${target.id}/role`, { token, body: { role: 'CURATOR' } });
+
+    let targetId: number;
+    if (targetKind === 'SELF') {
+      targetId = requesterId!;
+    } else if (targetKind === 'ADMIN') {
+      const otherAdmin = await registerAs('other-admin@test.com', 'ADMIN');
+      targetId = otherAdmin.id;
+    } else {
+      const target = await registerAs('target@test.com', 'LISTENER');
+      targetId = target.id;
+    }
+
+    const res = await patch(`/users/${targetId}/role`, { token, body: { role: 'CURATOR' } });
     expect(res.status).toBe(expected);
   });
 
@@ -28,7 +43,7 @@ describe('PATCH /users/:id/role', () => {
     expect(res.status).toBe(404);
   });
 
-  test('admin token, existing user -> 200 and role updated', async () => {
+  test('admin token, existing (non-admin) user -> 200 and role updated', async () => {
     await registerAs('admin2@test.com', 'ADMIN');
     const target = await registerAs('target3@test.com', 'LISTENER');
     const token = await login('admin2@test.com', 'password123');
@@ -36,21 +51,6 @@ describe('PATCH /users/:id/role', () => {
     expect(res.status).toBe(200);
     const body = await json<{ role: Role }>(res);
     expect(body.role).toBe('CURATOR');
-  });
-
-  test('an admin cannot demote themselves -> 403', async () => {
-    const admin = await registerAs('self-admin@test.com', 'ADMIN');
-    const token = await login('self-admin@test.com', 'password123');
-    const res = await patch(`/users/${admin.id}/role`, { token, body: { role: 'LISTENER' } });
-    expect(res.status).toBe(403);
-  });
-
-  test('an admin cannot demote another admin -> 403', async () => {
-    await registerAs('admin3@test.com', 'ADMIN');
-    const otherAdmin = await registerAs('admin4@test.com', 'ADMIN');
-    const token = await login('admin3@test.com', 'password123');
-    const res = await patch(`/users/${otherAdmin.id}/role`, { token, body: { role: 'LISTENER' } });
-    expect(res.status).toBe(403);
   });
 
   test('a role change takes effect on the next request without re-login', async () => {

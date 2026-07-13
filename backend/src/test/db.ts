@@ -18,7 +18,8 @@ export const ready = migrate(testDb, {
 export async function resetDb() {
   await ready;
   const { rows } = await testDb.execute(
-    sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`,
+    sql`SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`,
   );
   const tables = (rows as { table_name: string }[]).map((r) => `"${r.table_name}"`).join(', ');
   if (tables) {
