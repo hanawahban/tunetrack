@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { resetDb } from '../test/db';
-import { testApp, login, authed, registerAs } from '../test/app';
+import { get, post, patch, del, login, registerAs, json } from '../test/app';
 
 describe('Artists CRUD', () => {
   beforeEach(resetDb);
@@ -9,78 +9,43 @@ describe('Artists CRUD', () => {
     await registerAs('curator@test.com', 'CURATOR');
     const token = await login('curator@test.com', 'password123');
 
-    const create = await testApp.handle(
-      new Request('http://localhost/artists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ name: 'Fleetwood Mac' }),
-      }),
-    );
+    const create = await post('/artists', { token, body: { name: 'Fleetwood Mac' } });
     expect(create.status).toBe(201);
-    const artist = await create.json();
+    const artist = await json<{ id: number; name: string }>(create);
     expect(artist.name).toBe('Fleetwood Mac');
 
-    const read = await testApp.handle(
-      new Request(`http://localhost/artists/${artist.id}`, { headers: authed(token) }),
-    );
+    const read = await get(`/artists/${artist.id}`, { token });
     expect(read.status).toBe(200);
 
-    const update = await testApp.handle(
-      new Request(`http://localhost/artists/${artist.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ name: 'Fleetwood Mac (renamed)' }),
-      }),
-    );
+    const update = await patch(`/artists/${artist.id}`, { token, body: { name: 'Fleetwood Mac (renamed)' } });
     expect(update.status).toBe(200);
-    expect((await update.json()).name).toBe('Fleetwood Mac (renamed)');
+    expect((await json<{ name: string }>(update)).name).toBe('Fleetwood Mac (renamed)');
 
-    const remove = await testApp.handle(
-      new Request(`http://localhost/artists/${artist.id}`, {
-        method: 'DELETE',
-        headers: authed(token),
-      }),
-    );
+    const remove = await del(`/artists/${artist.id}`, { token });
     expect(remove.status).toBe(200);
 
-    const readAfterDelete = await testApp.handle(
-      new Request(`http://localhost/artists/${artist.id}`, { headers: authed(token) }),
-    );
+    const readAfterDelete = await get(`/artists/${artist.id}`, { token });
     expect(readAfterDelete.status).toBe(404);
   });
 
   test('missing required name -> 422 validation error', async () => {
     await registerAs('curator2@test.com', 'CURATOR');
     const token = await login('curator2@test.com', 'password123');
-    const res = await testApp.handle(
-      new Request('http://localhost/artists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({}),
-      }),
-    );
+    const res = await post('/artists', { token, body: {} });
     expect(res.status).toBe(422);
   });
 
   test('listener cannot create an artist -> 403', async () => {
     await registerAs('listener@test.com', 'LISTENER');
     const token = await login('listener@test.com', 'password123');
-    const res = await testApp.handle(
-      new Request('http://localhost/artists', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ name: 'Should Fail' }),
-      }),
-    );
+    const res = await post('/artists', { token, body: { name: 'Should Fail' } });
     expect(res.status).toBe(403);
   });
 
   test('reading a missing artist -> 404', async () => {
     await registerAs('listener2@test.com', 'LISTENER');
     const token = await login('listener2@test.com', 'password123');
-    const res = await testApp.handle(
-      new Request('http://localhost/artists/999999', { headers: authed(token) }),
-    );
+    const res = await get('/artists/999999', { token });
     expect(res.status).toBe(404);
   });
 });

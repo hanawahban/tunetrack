@@ -1,16 +1,10 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { resetDb } from '../test/db';
-import { testApp, login, authed, registerAs } from '../test/app';
+import { get, post, patch, del, login, registerAs, json } from '../test/app';
 
 async function createArtist(token: string, name = 'Fleetwood Mac') {
-  const res = await testApp.handle(
-    new Request('http://localhost/artists', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authed(token) },
-      body: JSON.stringify({ name }),
-    }),
-  );
-  return res.json();
+  const res = await post('/artists', { token, body: { name } });
+  return json<{ id: number; name: string }>(res);
 }
 
 describe('Albums CRUD', () => {
@@ -21,49 +15,27 @@ describe('Albums CRUD', () => {
     const token = await login('curator@test.com', 'password123');
     const artist = await createArtist(token);
 
-    const create = await testApp.handle(
-      new Request('http://localhost/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ title: 'Rumours', artistId: artist.id }),
-      }),
-    );
+    const create = await post('/albums', { token, body: { title: 'Rumours', artistId: artist.id } });
     expect(create.status).toBe(201);
-    const album = await create.json();
+    const album = await json<{ id: number; title: string }>(create);
     expect(album.title).toBe('Rumours');
 
-    const read = await testApp.handle(
-      new Request(`http://localhost/albums/${album.id}`, { headers: authed(token) }),
-    );
+    const read = await get(`/albums/${album.id}`, { token });
     expect(read.status).toBe(200);
-    expect((await read.json()).artist.id).toBe(artist.id);
+    expect((await json<{ artist: { id: number } }>(read)).artist.id).toBe(artist.id);
 
-    const update = await testApp.handle(
-      new Request(`http://localhost/albums/${album.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ releaseYear: 1977 }),
-      }),
-    );
+    const update = await patch(`/albums/${album.id}`, { token, body: { releaseYear: 1977 } });
     expect(update.status).toBe(200);
-    expect((await update.json()).releaseYear).toBe(1977);
+    expect((await json<{ releaseYear: number }>(update)).releaseYear).toBe(1977);
 
-    const remove = await testApp.handle(
-      new Request(`http://localhost/albums/${album.id}`, { method: 'DELETE', headers: authed(token) }),
-    );
+    const remove = await del(`/albums/${album.id}`, { token });
     expect(remove.status).toBe(200);
   });
 
   test('creating an album for a non-existent artist -> 404', async () => {
     await registerAs('curator2@test.com', 'CURATOR');
     const token = await login('curator2@test.com', 'password123');
-    const res = await testApp.handle(
-      new Request('http://localhost/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ title: 'Orphan Album', artistId: 999999 }),
-      }),
-    );
+    const res = await post('/albums', { token, body: { title: 'Orphan Album', artistId: 999999 } });
     expect(res.status).toBe(404);
   });
 
@@ -71,13 +43,7 @@ describe('Albums CRUD', () => {
     await registerAs('curator3@test.com', 'CURATOR');
     const token = await login('curator3@test.com', 'password123');
     const artist = await createArtist(token);
-    const res = await testApp.handle(
-      new Request('http://localhost/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authed(token) },
-        body: JSON.stringify({ artistId: artist.id }),
-      }),
-    );
+    const res = await post('/albums', { token, body: { artistId: artist.id } });
     expect(res.status).toBe(422);
   });
 });

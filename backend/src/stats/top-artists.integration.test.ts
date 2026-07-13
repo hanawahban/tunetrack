@@ -1,50 +1,27 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { resetDb } from '../test/db';
-import { testApp, login, authed, registerAs } from '../test/app';
+import { get, post, login, registerAs, json } from '../test/app';
 
 async function createArtistWithAlbum(token: string, artistName: string) {
-  const artistRes = await testApp.handle(
-    new Request('http://localhost/artists', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authed(token) },
-      body: JSON.stringify({ name: artistName }),
-    }),
+  const artist = await json<{ id: number; name: string }>(
+    await post('/artists', { token, body: { name: artistName } }),
   );
-  const artist = await artistRes.json();
-  const albumRes = await testApp.handle(
-    new Request('http://localhost/albums', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authed(token) },
-      body: JSON.stringify({ title: `${artistName} album`, artistId: artist.id }),
-    }),
+  const album = await json<{ id: number }>(
+    await post('/albums', { token, body: { title: `${artistName} album`, artistId: artist.id } }),
   );
-  const album = await albumRes.json();
   return { artist, album };
 }
 
 async function createTrack(token: string, albumId: number, title: string) {
-  const res = await testApp.handle(
-    new Request('http://localhost/tracks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authed(token) },
-      body: JSON.stringify({ title, albumId }),
-    }),
-  );
-  return res.json();
+  return json<{ id: number }>(await post('/tracks', { token, body: { title, albumId } }));
 }
 
 function scrobble(token: string, trackId: number) {
-  return testApp.handle(
-    new Request('http://localhost/scrobbles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authed(token) },
-      body: JSON.stringify({ trackId }),
-    }),
-  );
+  return post('/scrobbles', { token, body: { trackId } });
 }
 
 function getTopArtists(token: string) {
-  return testApp.handle(new Request('http://localhost/stats/top-artists', { headers: authed(token) }));
+  return get('/stats/top-artists', { token });
 }
 
 describe('GET /stats/top-artists', () => {
@@ -55,7 +32,7 @@ describe('GET /stats/top-artists', () => {
     const token = await login('empty@test.com', 'password123');
     const res = await getTopArtists(token);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([]);
+    expect(await json<unknown[]>(res)).toEqual([]);
   });
 
   test('sums play counts per artist across multiple tracks and sorts descending', async () => {
@@ -79,7 +56,7 @@ describe('GET /stats/top-artists', () => {
 
     const res = await getTopArtists(listenerToken);
     expect(res.status).toBe(200);
-    const body: { artistId: number; playCount: number }[] = await res.json();
+    const body = await json<{ artistId: number; playCount: number }[]>(res);
 
     const artistAEntry = body.find((a) => a.artistId === artistA.id)!;
     const artistBEntry = body.find((a) => a.artistId === artistB.id)!;
