@@ -3,7 +3,7 @@ import { defineConfig } from "orval"
 export default defineConfig({
   tunetrack: {
     input: {
-      target: "../backend/docs/openapi.json",
+      target: "../api/docs/openapi.json",
     },
     output: {
       mode: "tags-split",

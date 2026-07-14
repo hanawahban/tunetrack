@@ -4,9 +4,10 @@ A personal music tracking app, styled as a dim, warm used-record shop you dig th
 
 ## Stack
 
-- **Backend**: NestJS 10 + Prisma 7 (Postgres) + Passport/JWT auth + Swagger/OpenAPI docs
-- **Frontend**: React 19 + Vite + Tailwind v4 + shadcn/Radix components
+- **API**: ElysiaJS (Bun runtime) + Drizzle ORM (Postgres) + JWT auth + Swagger/OpenAPI docs
+- **Web**: React 19 + Vite + Tailwind v4 + shadcn (migrating Radix → Base UI)
 - **Auth**: JWT bearer tokens, 3-role RBAC — `ADMIN`, `CURATOR`, `LISTENER`
+- **Package manager**: pnpm workspace (`api` + `web`)
 
 ### Roles
 
@@ -14,28 +15,32 @@ A personal music tracking app, styled as a dim, warm used-record shop you dig th
 |---|---|
 | `LISTENER` | Browse artists/albums/tracks, scrobble (log plays), view own recent plays + top-artists stats |
 | `CURATOR` | Everything `LISTENER` can, plus create/edit/delete artists, albums, and tracks |
-| `ADMIN` | Everything `CURATOR` can, plus change any user's role (`PATCH /users/:id/role`) |
+| `ADMIN` | Everything `CURATOR` can, plus change any (non-admin) user's role (`PATCH /users/:id/role`) |
 
 ## Prerequisites
 
-- **Node.js 20+** (tested on 22)
-- **npm** (repo uses npm, not pnpm/yarn — `package-lock.json` is committed)
+- **Bun** (runs the API) — https://bun.sh
+- **Node.js 20+** (tested on 22) and **pnpm** — `corepack enable pnpm` if you don't have pnpm yet, or `npm i -g pnpm`
 - **PostgreSQL** — any of:
   - a local Postgres instance
   - a Postgres container (`docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=tunetrack -p 5432:5432 postgres`)
-  - a free hosted Prisma Postgres DB via `npx create-db` (run from `backend/`) — prints a connection string you paste into `DATABASE_URL`
+  - a free hosted Postgres DB — prints a connection string you paste into `DATABASE_URL`
 
 ## Setup (from a fresh clone)
 
-### 1. Backend
-
 ```bash
-cd backend
-npm install
-cp ../.env.example .env
+pnpm install
 ```
 
-Edit `backend/.env`:
+Installs both `api` and `web` from the workspace root — one `pnpm-lock.yaml` is produced, no per-package lockfiles.
+
+### 1. API
+
+```bash
+cp api/.env.example api/.env
+```
+
+Edit `api/.env`:
 
 | Var | Meaning |
 |---|---|
@@ -45,34 +50,31 @@ Edit `backend/.env`:
 | `WEB_ORIGIN` | The frontend's URL, for CORS — must match wherever the frontend actually runs (default `http://localhost:5173`) |
 | `DATABASE_URL` | Postgres connection string (local, Docker, or hosted — see Prerequisites) |
 
-Then generate the Prisma client, apply migrations, and seed test data:
+Apply migrations and seed test data:
 
 ```bash
-npx prisma generate
-npx prisma migrate deploy
-npx prisma db seed
+pnpm --filter api run db:migrate
+pnpm --filter api run db:seed
 ```
 
 Start the API:
 
 ```bash
-npm run start:dev
+pnpm --filter api run start:dev
 ```
 
-Backend is now on `http://localhost:3000`. Interactive API docs (Swagger) are at `http://localhost:3000/api/docs` — click **Authorize** and paste a bearer token (from `POST /auth/login`) to call protected routes directly from the docs UI.
+API is now on `http://localhost:3000`. Interactive API docs (Swagger) are at `http://localhost:3000/api/docs` — click **Authorize** and paste a bearer token (from `POST /auth/login`) to call protected routes directly from the docs UI.
 
-### 2. Frontend
+### 2. Web
 
 In a separate terminal:
 
 ```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
+cp web/.env.example web/.env
+pnpm --filter web run dev
 ```
 
-Frontend is now on `http://localhost:5173`. `VITE_API_URL` in `frontend/.env` already points at `http://localhost:3000` by default — only change it if your backend runs somewhere else, and keep it in sync with backend's `WEB_ORIGIN`.
+Frontend is now on `http://localhost:5173`. `VITE_API_URL` in `web/.env` already points at `http://localhost:3000` by default — only change it if your API runs somewhere else, and keep it in sync with the API's `WEB_ORIGIN`.
 
 ## Logging in
 
@@ -84,5 +86,4 @@ The seed script creates three test accounts, all with password `password123`:
 | `curator@test.com` | CURATOR |
 | `listener@test.com` | LISTENER |
 
-Log in as `admin@test.com` to see curator controls (shelving/editing/deleting records) and role management. New signups via the app's register form default to `LISTENER` — promote one via `PATCH /users/:id/role` (as an admin) if you need another privileged account.
-
+Log in as `admin@test.com` to see curator controls (shelving/editing/deleting records) and role management. New signups via the app's register form default to `LISTENER` — promote one via `PATCH /users/:id/role` (as an admin) if you need another privileged account. An admin can't demote themselves or another admin.
