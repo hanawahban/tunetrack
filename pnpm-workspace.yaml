@@ -1,0 +1,8 @@
+packages:
+  - api
+  - web
+allowBuilds:
+  # esbuild's postinstall fetches the platform-specific binary vite/esbuild need to run at all.
+  esbuild: true
+  # @scarf/scarf is esbuild's telemetry/analytics reporting shim -- not functionally required.
+  '@scarf/scarf': false

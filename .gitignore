@@ -13,9 +13,9 @@ dist/
 .mint/verdicts/
 scratchpad/
 
-/backend/src/generated/prisma
-/backend/prisma.config.js
-/backend/prisma.config.js.map
-/backend/prisma.config.d.ts
+/api/src/generated/prisma
+/api/prisma.config.js
+/api/prisma.config.js.map
+/api/prisma.config.d.ts
 
-/frontend/src/lib/api/generated/
+/web/src/lib/api/generated/

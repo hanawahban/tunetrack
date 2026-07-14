@@ -1,11 +1,12 @@
 {
-  "name": "tunetrack",
+  "name": "api",
   "version": "0.0.1",
   "description": "Last.fm-style music scrobbling API",
   "private": true,
   "scripts": {
     "start": "bun src/index.ts",
     "start:dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun src/db/seed.ts",
