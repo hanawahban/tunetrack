@@ -40,4 +40,4 @@ export const albumIdParam = t.Object({
   id: t.Number(),
 });
 
-export const albumListResponse = paginatedResponse(albumResponse);
+export const albumListResponse = paginatedResponse(t.Ref('AlbumResponse'));

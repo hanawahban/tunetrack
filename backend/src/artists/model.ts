@@ -6,6 +6,7 @@ export const albumSummary = t.Object({
   title: t.String(),
   releaseYear: t.Nullable(t.Number()),
   imageUrl: t.Nullable(t.String()),
+  genre: t.Nullable(t.String()),
   artistId: t.Number(),
   createdAt: t.String({ format: 'date-time' }),
 });

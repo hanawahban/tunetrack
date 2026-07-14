@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia';
 import { eq } from 'drizzle-orm';
+import { sharedModels } from '../common/models';
 import { authRoutes } from '../auth/routes';
 import { artistsRoutes } from '../artists';
 import { albumsRoutes } from '../albums';
@@ -12,6 +13,7 @@ import { testDb } from './db';
 
 /** Route modules composed without swagger/cors/listen -- for in-process request testing via .handle(). */
 export const testApp = new Elysia()
+  .use(sharedModels)
   .use(authRoutes)
   .use(artistsRoutes)
   .use(albumsRoutes)

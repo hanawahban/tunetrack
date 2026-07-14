@@ -3,11 +3,13 @@ import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
 import { decodeCursor, paginationQuery } from '../common/pagination';
+import { sharedModels } from '../common/models';
 import { authGuard } from '../auth/guard';
 import { AlbumsService } from './service';
-import { albumIdParam, albumListResponse, albumResponse, createAlbumBody, updateAlbumBody } from './model';
+import { albumIdParam, albumListResponse, createAlbumBody, updateAlbumBody } from './model';
 
 export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
+  .use(sharedModels)
   .use(authGuard)
   .post(
     '/',
@@ -23,7 +25,7 @@ export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
     },
     {
       body: createAlbumBody,
-      response: { 201: albumResponse, 404: notFoundResponse },
+      response: { 201: 'AlbumResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   )
@@ -41,7 +43,7 @@ export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
     },
     {
       params: albumIdParam,
-      response: { 200: albumResponse, 404: notFoundResponse },
+      response: { 200: 'AlbumResponse', 404: notFoundResponse },
       auth: true,
     },
   )
@@ -62,7 +64,7 @@ export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
     {
       params: albumIdParam,
       body: updateAlbumBody,
-      response: { 200: albumResponse, 404: notFoundResponse },
+      response: { 200: 'AlbumResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   )
@@ -75,7 +77,7 @@ export const albumsRoutes = new Elysia({ prefix: '/albums', tags: ['Albums'] })
     },
     {
       params: albumIdParam,
-      response: { 200: albumResponse, 404: notFoundResponse },
+      response: { 200: 'AlbumResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   );

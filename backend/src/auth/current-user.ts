@@ -10,10 +10,12 @@ export const SAFE_SELECT = {
   createdAt: users.createdAt,
 };
 
+export const roleResponse = t.Union([t.Literal('ADMIN'), t.Literal('CURATOR'), t.Literal('LISTENER')]);
+
 export const userResponse = t.Object({
   id: t.Number(),
   email: t.String(),
-  role: t.Union([t.Literal('ADMIN'), t.Literal('CURATOR'), t.Literal('LISTENER')]),
+  role: t.Ref('Role'),
   createdAt: t.String({ format: 'date-time' }),
 });
 
