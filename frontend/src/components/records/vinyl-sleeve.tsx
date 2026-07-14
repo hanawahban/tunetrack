@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils"
-import type { AlbumResponseDto } from "@/lib/api/generated/model"
+import type { AlbumResponseDto } from "@/lib/api-types"
 
 // A small, restrained set of worn-sleeve tints so the crate doesn't look uniform,
 // the way a real shelf of used records never has two identical sleeves.

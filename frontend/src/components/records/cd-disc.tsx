@@ -1,7 +1,7 @@
 import { Disc3, Play, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { TrackResponseDto } from "@/lib/api/generated/model"
+import type { TrackResponseDto } from "@/lib/api-types"
 
 export function CdTrackRow({
   track,

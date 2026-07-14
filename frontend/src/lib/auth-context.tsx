@@ -1,6 +1,6 @@
 import * as React from "react"
 import { usePostAuthLogin, usePostAuthRegister } from "@/lib/api/generated/auth/auth"
-import type { UserResponseDtoRole } from "@/lib/api/generated/model"
+import type { UserResponseDtoRole } from "@/lib/api-types"
 import { auth } from "@/lib/auth-token"
 import { decodeJwt, isExpired } from "@/lib/jwt"
 

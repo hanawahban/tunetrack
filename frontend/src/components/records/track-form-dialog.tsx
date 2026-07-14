@@ -10,7 +10,7 @@ import {
   usePatchTracksById,
 } from "@/lib/api/generated/tracks/tracks"
 import { getGetAlbumsByIdQueryKey } from "@/lib/api/generated/albums/albums"
-import type { TrackResponseDto } from "@/lib/api/generated/model"
+import type { TrackResponseDto } from "@/lib/api-types"
 import { ApiError } from "@/lib/api-error"
 import {
   Dialog,
