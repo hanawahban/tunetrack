@@ -4,7 +4,7 @@ import { Search, Plus, Disc3 } from "lucide-react"
 import { toast } from "sonner"
 
 import { useGetAlbums } from "@/lib/api/generated/albums/albums"
-import type { GetAlbums200OneItemsItem } from "@/lib/api/generated/model"
+import type { AlbumResponseDto } from "@/lib/api-types"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
@@ -18,7 +18,7 @@ export function ShopFloorPage() {
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
   const [cursor, setCursor] = React.useState<string | undefined>(undefined)
-  const [albums, setAlbums] = React.useState<GetAlbums200OneItemsItem[]>([])
+  const [albums, setAlbums] = React.useState<AlbumResponseDto[]>([])
 
   const { data, isPending, isFetching, error } = useGetAlbums({ cursor })
 
