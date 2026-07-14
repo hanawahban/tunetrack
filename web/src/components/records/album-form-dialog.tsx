@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
+import { ChevronsUpDownIcon } from "lucide-react"
 
 import {
   usePostAlbums,
@@ -26,7 +27,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Form,
@@ -34,10 +35,18 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import { cn } from "@/lib/utils"
 
 const albumFormSchema = z
   .object({
@@ -67,11 +76,13 @@ export function AlbumFormDialog({
 }) {
   const queryClient = useQueryClient()
   // 100 is the backend's MAX_PAGE_SIZE clamp -- covers the full catalog for a personal-scale
-  // app. Once #17 lands, replace this dropdown with a paged/typeahead combobox.
+  // app, filtered client-side by the combobox below (no server-side artist search exists).
   const { data: artists } = useGetArtists({ limit: 100 })
   const createArtist = usePostArtists()
   const createAlbum = usePostAlbums()
   const updateAlbum = usePatchAlbumsById()
+  const [artistPopoverOpen, setArtistPopoverOpen] = React.useState(false)
+  const [artistSearch, setArtistSearch] = React.useState("")
 
   const form = useForm<AlbumFormValues>({
     resolver: zodResolver(albumFormSchema),
@@ -189,52 +200,78 @@ export function AlbumFormDialog({
             <FormField
               control={form.control}
               name="artistId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Artist</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(v) => {
-                      field.onChange(v)
-                      if (v) form.setValue("newArtistName", "")
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pick an artist" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {artists?.items.map((a) => (
-                        <SelectItem key={a.id} value={a.id.toString()}>
-                          {a.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>or type a new one below</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              render={({ field }) => {
+                const selectedArtist = artists?.items.find((a) => a.id.toString() === field.value)
+                const pendingNewArtistName = form.watch("newArtistName")
+                const triggerLabel = pendingNewArtistName || selectedArtist?.name || "Pick an artist"
 
-            <FormField
-              control={form.control}
-              name="newArtistName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="New artist name"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        if (e.target.value) form.setValue("artistId", "")
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+                return (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Artist</FormLabel>
+                    <Popover open={artistPopoverOpen} onOpenChange={setArtistPopoverOpen}>
+                      <PopoverTrigger
+                        render={
+                          <FormControl>
+                            <button
+                              type="button"
+                              role="combobox"
+                              aria-expanded={artistPopoverOpen}
+                              className={cn(
+                                buttonVariants({ variant: "outline" }),
+                                "w-full justify-between font-normal",
+                                !selectedArtist && !pendingNewArtistName && "text-muted-foreground"
+                              )}
+                            >
+                              {triggerLabel}
+                              <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 opacity-50" />
+                            </button>
+                          </FormControl>
+                        }
+                      />
+                      <PopoverContent className="w-(--anchor-width) p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search artists…"
+                            value={artistSearch}
+                            onValueChange={setArtistSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <button
+                                type="button"
+                                className="w-full px-2 py-1.5 text-left text-sm hover:bg-muted"
+                                onClick={() => {
+                                  form.setValue("newArtistName", artistSearch)
+                                  field.onChange("")
+                                  setArtistPopoverOpen(false)
+                                }}
+                              >
+                                Create "{artistSearch}"
+                              </button>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {artists?.items.map((a) => (
+                                <CommandItem
+                                  key={a.id}
+                                  value={a.name}
+                                  onSelect={() => {
+                                    field.onChange(a.id.toString())
+                                    form.setValue("newArtistName", "")
+                                    setArtistPopoverOpen(false)
+                                  }}
+                                >
+                                  {a.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
 
             <DialogFooter>
