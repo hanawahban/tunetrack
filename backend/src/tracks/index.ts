@@ -2,11 +2,13 @@ import { Elysia, status, t } from 'elysia';
 import { httpError } from '../common/http-error';
 import { notFoundResponse } from '../common/model';
 import { pgErrorCode, PG_FOREIGN_KEY_VIOLATION } from '../common/pg-error';
+import { sharedModels } from '../common/models';
 import { authGuard } from '../auth/guard';
 import { TracksService } from './service';
-import { createTrackBody, trackIdParam, trackResponse, updateTrackBody } from './model';
+import { createTrackBody, trackIdParam, updateTrackBody } from './model';
 
 export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
+  .use(sharedModels)
   .use(authGuard)
   .post(
     '/',
@@ -22,14 +24,14 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     },
     {
       body: createTrackBody,
-      response: { 201: trackResponse, 404: notFoundResponse },
+      response: { 201: 'TrackResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   )
   .get(
     '/',
     () => TracksService.findAll(),
-    { response: { 200: t.Array(trackResponse) }, auth: true },
+    { response: { 200: t.Array(t.Ref('TrackResponse')) }, auth: true },
   )
   .get(
     '/:id',
@@ -40,7 +42,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     },
     {
       params: trackIdParam,
-      response: { 200: trackResponse, 404: notFoundResponse },
+      response: { 200: 'TrackResponse', 404: notFoundResponse },
       auth: true,
     },
   )
@@ -61,7 +63,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     {
       params: trackIdParam,
       body: updateTrackBody,
-      response: { 200: trackResponse, 404: notFoundResponse },
+      response: { 200: 'TrackResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   )
@@ -74,7 +76,7 @@ export const tracksRoutes = new Elysia({ prefix: '/tracks', tags: ['Tracks'] })
     },
     {
       params: trackIdParam,
-      response: { 200: trackResponse, 404: notFoundResponse },
+      response: { 200: 'TrackResponse', 404: notFoundResponse },
       roles: ['ADMIN', 'CURATOR'],
     },
   );

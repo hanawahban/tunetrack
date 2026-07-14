@@ -3,6 +3,7 @@ import { join } from 'path';
 import { Elysia } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { swagger } from '@elysiajs/swagger';
+import { sharedModels } from './common/models';
 import { authRoutes } from './auth/routes';
 import { artistsRoutes } from './artists';
 import { albumsRoutes } from './albums';
@@ -31,6 +32,7 @@ const app = new Elysia()
     }),
   )
   .get('/health', () => ({ status: 'ok' }))
+  .use(sharedModels)
   .use(authRoutes)
   .use(artistsRoutes)
   .use(albumsRoutes)

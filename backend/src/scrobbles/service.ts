@@ -64,6 +64,7 @@ export abstract class ScrobblesService {
       title: album.title,
       releaseYear: album.releaseYear,
       imageUrl: album.imageUrl,
+      genre: album.genre,
       artistId: album.artistId,
       createdAt: album.createdAt.toISOString(),
     };
