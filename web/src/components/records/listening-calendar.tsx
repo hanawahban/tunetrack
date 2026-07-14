@@ -42,6 +42,7 @@ export function ListeningCalendar({
     <Calendar
       // ~52px cells fill the col-span-2 panel (default 28px looked lost in it)
       className="mx-auto [--cell-size:3.25rem]"
+      captionLayout="dropdown"
       components={{
         DayButton: (props) => {
           const count = counts.get(format(props.day.date, "yyyy-MM-dd")) ?? 0

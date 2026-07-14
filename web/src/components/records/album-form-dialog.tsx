@@ -75,14 +75,25 @@ export function AlbumFormDialog({
   defaultArtistId?: number
 }) {
   const queryClient = useQueryClient()
-  // 100 is the backend's MAX_PAGE_SIZE clamp -- covers the full catalog for a personal-scale
-  // app, filtered client-side by the combobox below (no server-side artist search exists).
-  const { data: artists } = useGetArtists({ limit: 100 })
   const createArtist = usePostArtists()
   const createAlbum = usePostAlbums()
   const updateAlbum = usePatchAlbumsById()
   const [artistPopoverOpen, setArtistPopoverOpen] = React.useState(false)
   const [artistSearch, setArtistSearch] = React.useState("")
+  const [debouncedArtistSearch, setDebouncedArtistSearch] = React.useState("")
+  const [selectedArtistName, setSelectedArtistName] = React.useState<string | undefined>(undefined)
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedArtistSearch(artistSearch), 250)
+    return () => clearTimeout(timeout)
+  }, [artistSearch])
+
+  // Server-side search: the API filters by `q`, not a client-side filter over one fetched
+  // page -- the artist picker works past the old 100-row page cap.
+  const { data: artists, isFetching: artistsFetching } = useGetArtists({
+    q: debouncedArtistSearch || undefined,
+    limit: 20,
+  })
 
   const form = useForm<AlbumFormValues>({
     resolver: zodResolver(albumFormSchema),
@@ -104,6 +115,11 @@ export function AlbumFormDialog({
         artistId: (album?.artistId ?? defaultArtistId)?.toString() ?? "",
         newArtistName: "",
       })
+      // ponytail: no call site passes defaultArtistId today, so there's no name to seed for
+      // that case -- the trigger falls back to the placeholder until the user re-picks.
+      setSelectedArtistName(album?.artist?.name)
+      setArtistSearch("")
+      setDebouncedArtistSearch("")
     }
   }, [open, album, defaultArtistId, form])
 
@@ -201,9 +217,8 @@ export function AlbumFormDialog({
               control={form.control}
               name="artistId"
               render={({ field }) => {
-                const selectedArtist = artists?.items.find((a) => a.id.toString() === field.value)
                 const pendingNewArtistName = form.watch("newArtistName")
-                const triggerLabel = pendingNewArtistName || selectedArtist?.name || "Pick an artist"
+                const triggerLabel = pendingNewArtistName || selectedArtistName || "Pick an artist"
 
                 return (
                   <FormItem className="flex flex-col">
@@ -219,7 +234,7 @@ export function AlbumFormDialog({
                               className={cn(
                                 buttonVariants({ variant: "outline" }),
                                 "w-full justify-between font-normal",
-                                !selectedArtist && !pendingNewArtistName && "text-muted-foreground"
+                                !selectedArtistName && !pendingNewArtistName && "text-muted-foreground"
                               )}
                             >
                               {triggerLabel}
@@ -229,34 +244,38 @@ export function AlbumFormDialog({
                         }
                       />
                       <PopoverContent className="w-(--anchor-width) p-0">
-                        <Command>
+                        <Command shouldFilter={false}>
                           <CommandInput
                             placeholder="Search artists…"
                             value={artistSearch}
                             onValueChange={setArtistSearch}
                           />
                           <CommandList>
-                            <CommandEmpty>
-                              <button
-                                type="button"
-                                className="w-full px-2 py-1.5 text-left text-sm hover:bg-muted"
-                                onClick={() => {
-                                  form.setValue("newArtistName", artistSearch)
-                                  field.onChange("")
-                                  setArtistPopoverOpen(false)
-                                }}
-                              >
-                                Create "{artistSearch}"
-                              </button>
-                            </CommandEmpty>
+                            {!artistsFetching && (
+                              <CommandEmpty>
+                                <button
+                                  type="button"
+                                  className="w-full px-2 py-1.5 text-left text-sm hover:bg-muted"
+                                  onClick={() => {
+                                    form.setValue("newArtistName", artistSearch)
+                                    field.onChange("")
+                                    setSelectedArtistName(undefined)
+                                    setArtistPopoverOpen(false)
+                                  }}
+                                >
+                                  Create "{artistSearch}"
+                                </button>
+                              </CommandEmpty>
+                            )}
                             <CommandGroup>
                               {artists?.items.map((a) => (
                                 <CommandItem
                                   key={a.id}
-                                  value={a.name}
+                                  value={a.id.toString()}
                                   onSelect={() => {
                                     field.onChange(a.id.toString())
                                     form.setValue("newArtistName", "")
+                                    setSelectedArtistName(a.name)
                                     setArtistPopoverOpen(false)
                                   }}
                                 >
