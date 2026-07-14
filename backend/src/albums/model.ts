@@ -19,6 +19,7 @@ export const albumResponse = t.Object({
   title: t.String(),
   releaseYear: t.Nullable(t.Number()),
   imageUrl: t.Nullable(t.String()),
+  genre: t.Nullable(t.String()),
   artistId: t.Number(),
   createdAt: t.String({ format: 'date-time' }),
   artist: t.Optional(artistSummary),
@@ -29,6 +30,7 @@ export const createAlbumBody = t.Object({
   title: t.String(),
   releaseYear: t.Optional(t.Number()),
   imageUrl: t.Optional(t.String()),
+  genre: t.Optional(t.String()),
   artistId: t.Number(),
 });
 
