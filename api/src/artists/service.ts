@@ -1,4 +1,4 @@
-import { and, desc, eq, lt, or } from 'drizzle-orm';
+import { and, desc, eq, ilike, lt, or } from 'drizzle-orm';
 import { db } from '../db';
 import { artists, type Artist, type Album } from '../db/schema';
 import { encodeCursor, resolveLimit, type Cursor } from '../common/pagination';
@@ -9,14 +9,16 @@ export abstract class ArtistsService {
     return ArtistsService.serialize(artist!);
   }
 
-  static async findAll(cursor?: Cursor, limit?: number) {
+  static async findAll(cursor?: Cursor, limit?: number, q?: string) {
     const pageSize = resolveLimit(limit);
     const cursorWhere = cursor
       ? or(lt(artists.createdAt, cursor.sortValue), and(eq(artists.createdAt, cursor.sortValue), lt(artists.id, cursor.id)))
       : undefined;
+const searchWhere = q?.trim() ? ilike(artists.name, `%${q.trim().replace(/[%_\\]/g, (m) => `\\${m}`)}%`) : undefined;
+    const where = cursorWhere && searchWhere ? and(cursorWhere, searchWhere) : (cursorWhere ?? searchWhere);
 
     const rows = await db.query.artists.findMany({
-      where: cursorWhere,
+      where,
       orderBy: [desc(artists.createdAt), desc(artists.id)],
       limit: pageSize + 1,
       with: { albums: true },

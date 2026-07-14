@@ -48,4 +48,17 @@ describe('Artists CRUD', () => {
     const res = await get('/artists/999999', { token });
     expect(res.status).toBe(404);
   });
+
+  test('q param filters by case-insensitive substring match', async () => {
+    await registerAs('curator3@test.com', 'CURATOR');
+    const token = await login('curator3@test.com', 'password123');
+    await post('/artists', { token, body: { name: 'Fleetwood Mac' } });
+    await post('/artists', { token, body: { name: 'Fleet Foxes' } });
+    await post('/artists', { token, body: { name: 'Radiohead' } });
+
+    const res = await get('/artists?q=fleet', { token });
+    expect(res.status).toBe(200);
+    const { items } = await json<{ items: { name: string }[] }>(res);
+    expect(items.map((a) => a.name).sort()).toEqual(['Fleet Foxes', 'Fleetwood Mac']);
+  });
 });

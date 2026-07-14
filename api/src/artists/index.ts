@@ -1,9 +1,16 @@
 import { Elysia, status, t } from 'elysia';
 import { httpError } from '../common/http-error';
 import { authGuard } from '../auth/guard';
-import { decodeCursor, paginationQuery } from '../common/pagination';
+import { decodeCursor } from '../common/pagination';
 import { ArtistsService } from './service';
-import { artistBody, artistIdParam, artistListResponse, artistResponse, notFoundResponse } from './model';
+import {
+  artistBody,
+  artistIdParam,
+  artistListResponse,
+  artistResponse,
+  artistsQuery,
+  notFoundResponse,
+} from './model';
 
 export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] })
   .use(authGuard)
@@ -14,8 +21,8 @@ export const artistsRoutes = new Elysia({ prefix: '/artists', tags: ['Artists'] 
   )
   .get(
     '/',
-    ({ query }) => ArtistsService.findAll(decodeCursor(query.cursor), query.limit),
-    { query: paginationQuery, response: { 200: artistListResponse }, auth: true },
+    ({ query }) => ArtistsService.findAll(decodeCursor(query.cursor), query.limit, query.q),
+    { query: artistsQuery, response: { 200: artistListResponse }, auth: true },
   )
   .get(
     '/:id',

@@ -1,6 +1,12 @@
 import { t } from 'elysia';
 import { paginatedResponse } from '../common/pagination';
 
+export const artistsQuery = t.Object({
+  cursor: t.Optional(t.String()),
+  limit: t.Optional(t.Numeric({ minimum: 1 })),
+  q: t.Optional(t.String()),
+});
+
 export const artistResponse = t.Object({
   id: t.Number(),
   name: t.String(),
