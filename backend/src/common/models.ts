@@ -1,5 +1,5 @@
 import { Elysia } from 'elysia';
-import { albumResponse } from '../albums/model';
+import { albumResponse, albumSummary } from '../albums/model';
 import { trackResponse } from '../tracks/model';
 import { roleResponse } from '../auth/current-user';
 
@@ -10,6 +10,7 @@ import { roleResponse } from '../auth/current-user';
  */
 export const sharedModels = new Elysia({ name: 'shared-models' }).model({
   AlbumResponse: albumResponse,
+  AlbumSummary: albumSummary,
   TrackResponse: trackResponse,
   Role: roleResponse,
 });

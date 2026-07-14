@@ -14,6 +14,20 @@ export const trackSummary = t.Object({
   createdAt: t.String({ format: 'date-time' }),
 });
 
+/** Shared nested-album shape, registered as AlbumSummary in common/models.ts. Used wherever
+ *  an album is embedded inside another response (artist's albums list, track's album, a
+ *  scrobble's track -> album) instead of being duplicated per module. */
+export const albumSummary = t.Object({
+  id: t.Number(),
+  title: t.String(),
+  releaseYear: t.Nullable(t.Number()),
+  imageUrl: t.Nullable(t.String()),
+  genre: t.Nullable(t.String()),
+  artistId: t.Number(),
+  createdAt: t.String({ format: 'date-time' }),
+  artist: t.Optional(artistSummary),
+});
+
 export const albumResponse = t.Object({
   id: t.Number(),
   title: t.String(),

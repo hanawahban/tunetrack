@@ -1,21 +1,11 @@
 import { t } from 'elysia';
 import { paginatedResponse } from '../common/pagination';
 
-export const albumSummary = t.Object({
-  id: t.Number(),
-  title: t.String(),
-  releaseYear: t.Nullable(t.Number()),
-  imageUrl: t.Nullable(t.String()),
-  genre: t.Nullable(t.String()),
-  artistId: t.Number(),
-  createdAt: t.String({ format: 'date-time' }),
-});
-
 export const artistResponse = t.Object({
   id: t.Number(),
   name: t.String(),
   createdAt: t.String({ format: 'date-time' }),
-  albums: t.Optional(t.Array(albumSummary)),
+  albums: t.Optional(t.Array(t.Ref('AlbumSummary'))),
 });
 
 export const artistBody = t.Object({
