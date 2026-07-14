@@ -1,13 +1,17 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
-import { Disc3, Receipt } from "lucide-react"
+import { CalendarDays, Disc3, LineChart, Receipt } from "lucide-react"
 import { toast } from "sonner"
 
 import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
 import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
+import { useScrobbleHistory } from "@/lib/hooks/use-scrobble-history"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Progress } from "@/components/ui/progress"
+import { ListeningCalendar } from "@/components/records/listening-calendar"
+import { ListeningTrendChart, TopGenresChart } from "@/components/records/listening-charts"
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
@@ -31,6 +35,7 @@ export function MyCratePage() {
     error: scrobblesError,
   } = useGetScrobblesRecent({ cursor })
   const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
+  const { data: scrobbleHistory, isPending: historyPending } = useScrobbleHistory()
 
   React.useEffect(() => {
     if (!scrobblesPage) return
@@ -169,14 +174,64 @@ export function MyCratePage() {
                       {a.playCount} play{a.playCount === 1 ? "" : "s"}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/30">
-                    <div
-                      className="h-full rounded-full bg-shop-amber"
-                      style={{ width: `${(a.playCount / maxPlays) * 100}%` }}
-                    />
-                  </div>
+                  <Progress value={(a.playCount / maxPlays) * 100} />
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+        <div className="lg:col-span-2">
+          <div className="mb-3 flex items-center gap-2">
+            <CalendarDays className="size-4 text-shop-amber" />
+            <h2 className="text-catalog text-xs uppercase tracking-wider text-muted-foreground">
+              Spin calendar
+            </h2>
+          </div>
+
+          <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
+            {historyPending ? (
+              <Skeleton className="h-64 w-full" />
+            ) : (
+              <ListeningCalendar scrobbles={scrobbleHistory ?? []} />
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-8 lg:col-span-3">
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <LineChart className="size-4 text-shop-amber" />
+              <h2 className="text-catalog text-xs uppercase tracking-wider text-muted-foreground">
+                Listening trend
+              </h2>
+            </div>
+
+            <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
+              {historyPending ? (
+                <Skeleton className="h-48 w-full" />
+              ) : (
+                <ListeningTrendChart scrobbles={scrobbleHistory ?? []} />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <Disc3 className="size-4 text-shop-amber" />
+              <h2 className="text-catalog text-xs uppercase tracking-wider text-muted-foreground">
+                Top genres
+              </h2>
+            </div>
+
+            <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
+              {historyPending ? (
+                <Skeleton className="h-48 w-full" />
+              ) : (
+                <TopGenresChart scrobbles={scrobbleHistory ?? []} />
+              )}
             </div>
           </div>
         </div>
