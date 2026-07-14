@@ -14,7 +14,7 @@ export abstract class ArtistsService {
     const cursorWhere = cursor
       ? or(lt(artists.createdAt, cursor.sortValue), and(eq(artists.createdAt, cursor.sortValue), lt(artists.id, cursor.id)))
       : undefined;
-    const searchWhere = q?.trim() ? ilike(artists.name, `%${q.trim()}%`) : undefined;
+const searchWhere = q?.trim() ? ilike(artists.name, `%${q.trim().replace(/[%_\\]/g, (m) => `\\${m}`)}%`) : undefined;
     const where = cursorWhere && searchWhere ? and(cursorWhere, searchWhere) : (cursorWhere ?? searchWhere);
 
     const rows = await db.query.artists.findMany({
