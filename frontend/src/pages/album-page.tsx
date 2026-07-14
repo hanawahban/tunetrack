@@ -16,7 +16,7 @@ import {
   getGetScrobblesRecentQueryKey,
 } from "@/lib/api/generated/scrobbles/scrobbles"
 import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
-import type { TrackResponseDto } from "@/lib/api/generated/model"
+import type { TrackResponseDto } from "@/lib/api-types"
 import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { CdTrackRow } from "@/components/records/cd-disc"

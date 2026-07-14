@@ -16,7 +16,7 @@ import {
   usePostArtists,
   getGetArtistsQueryKey,
 } from "@/lib/api/generated/artists/artists"
-import type { AlbumResponseDto } from "@/lib/api/generated/model"
+import type { AlbumResponseDto } from "@/lib/api-types"
 import { ApiError } from "@/lib/api-error"
 import {
   Dialog,
