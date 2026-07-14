@@ -66,7 +66,9 @@ export function AlbumFormDialog({
   defaultArtistId?: number
 }) {
   const queryClient = useQueryClient()
-  const { data: artists } = useGetArtists()
+  // 100 is the backend's MAX_PAGE_SIZE clamp -- covers the full catalog for a personal-scale
+  // app. Once #17 lands, replace this dropdown with a paged/typeahead combobox.
+  const { data: artists } = useGetArtists({ limit: 100 })
   const createArtist = usePostArtists()
   const createAlbum = usePostAlbums()
   const updateAlbum = usePatchAlbumsById()
