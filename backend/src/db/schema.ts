@@ -24,6 +24,7 @@ export const albums = pgTable('Album', {
   title: text('title').notNull(),
   releaseYear: integer('releaseYear'),
   imageUrl: text('imageUrl'),
+  genre: text('genre'),
   artistId: integer('artistId')
     .notNull()
     .references(() => artists.id, { onDelete: 'cascade', onUpdate: 'cascade' }),

@@ -1934,6 +1934,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -1994,6 +2005,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -2031,6 +2043,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -2091,6 +2114,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -2128,6 +2152,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -2188,6 +2223,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -2287,6 +2323,9 @@
                   "imageUrl": {
                     "type": "string"
                   },
+                  "genre": {
+                    "type": "string"
+                  },
                   "artistId": {
                     "type": "number"
                   }
@@ -2310,6 +2349,9 @@
                   "imageUrl": {
                     "type": "string"
                   },
+                  "genre": {
+                    "type": "string"
+                  },
                   "artistId": {
                     "type": "number"
                   }
@@ -2331,6 +2373,9 @@
                     "type": "number"
                   },
                   "imageUrl": {
+                    "type": "string"
+                  },
+                  "genre": {
                     "type": "string"
                   },
                   "artistId": {
@@ -2388,6 +2433,7 @@
                           "title",
                           "releaseYear",
                           "imageUrl",
+                          "genre",
                           "artistId",
                           "createdAt"
                         ],
@@ -2410,6 +2456,17 @@
                             ]
                           },
                           "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "genre": {
                             "nullable": true,
                             "anyOf": [
                               {
@@ -2508,6 +2565,7 @@
                           "title",
                           "releaseYear",
                           "imageUrl",
+                          "genre",
                           "artistId",
                           "createdAt"
                         ],
@@ -2530,6 +2588,17 @@
                             ]
                           },
                           "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "genre": {
                             "nullable": true,
                             "anyOf": [
                               {
@@ -2628,6 +2697,7 @@
                           "title",
                           "releaseYear",
                           "imageUrl",
+                          "genre",
                           "artistId",
                           "createdAt"
                         ],
@@ -2650,6 +2720,17 @@
                             ]
                           },
                           "imageUrl": {
+                            "nullable": true,
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "genre": {
                             "nullable": true,
                             "anyOf": [
                               {
@@ -2791,6 +2872,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -2851,6 +2943,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -2888,6 +2981,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -2948,6 +3052,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -2985,6 +3090,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3045,6 +3161,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3171,6 +3288,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3231,6 +3359,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3268,6 +3397,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3328,6 +3468,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3365,6 +3506,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3425,6 +3577,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3520,6 +3673,9 @@
                   "imageUrl": {
                     "type": "string"
                   },
+                  "genre": {
+                    "type": "string"
+                  },
                   "artistId": {
                     "type": "number"
                   }
@@ -3539,6 +3695,9 @@
                   "imageUrl": {
                     "type": "string"
                   },
+                  "genre": {
+                    "type": "string"
+                  },
                   "artistId": {
                     "type": "number"
                   }
@@ -3556,6 +3715,9 @@
                     "type": "number"
                   },
                   "imageUrl": {
+                    "type": "string"
+                  },
+                  "genre": {
                     "type": "string"
                   },
                   "artistId": {
@@ -3613,6 +3775,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3673,6 +3846,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3710,6 +3884,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3770,6 +3955,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]
@@ -3807,6 +3993,17 @@
                         }
                       ]
                     },
+                    "genre": {
+                      "nullable": true,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "artistId": {
                       "type": "number"
                     },
@@ -3867,6 +4064,7 @@
                     "title",
                     "releaseYear",
                     "imageUrl",
+                    "genre",
                     "artistId",
                     "createdAt"
                   ]

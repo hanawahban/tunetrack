@@ -7,6 +7,7 @@ type AlbumInput = {
   title: string;
   releaseYear?: number;
   imageUrl?: string;
+  genre?: string;
   artistId: number;
 };
 
@@ -67,6 +68,7 @@ export abstract class AlbumsService {
       title: album.title,
       releaseYear: album.releaseYear,
       imageUrl: album.imageUrl,
+      genre: album.genre,
       artistId: album.artistId,
       createdAt: album.createdAt.toISOString(),
     };

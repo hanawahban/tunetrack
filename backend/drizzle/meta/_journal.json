@@ -8,6 +8,13 @@
       "when": 1783850166967,
       "tag": "0000_friendly_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784011845037,
+      "tag": "0001_vengeful_puma",
+      "breakpoints": true
     }
   ]
 }
