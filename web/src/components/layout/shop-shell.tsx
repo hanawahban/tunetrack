@@ -1,12 +1,22 @@
-import { Link, NavLink, Outlet } from "react-router-dom"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import { Disc3, LogOut } from "lucide-react"
 
 import { useAuth } from "@/lib/auth-context"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu"
+
+const navLinkClassName =
+  "text-catalog rounded-sm px-3 py-1.5 text-xs uppercase tracking-wider text-muted-foreground hover:bg-white/5 hover:text-muted-foreground data-active:bg-shop-oxblood data-active:text-shop-paper data-active:hover:bg-shop-oxblood"
 
 export function ShopShell() {
   const { session, logout } = useAuth()
+  const { pathname } = useLocation()
 
   return (
     <div className="min-h-svh">
@@ -22,25 +32,28 @@ export function ShopShell() {
             </span>
           </Link>
 
-          <nav className="text-catalog flex items-center gap-1 text-xs uppercase tracking-wider">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `rounded-sm px-3 py-1.5 transition-colors ${isActive ? "bg-shop-oxblood text-shop-paper" : "text-muted-foreground hover:bg-white/5"}`
-              }
-            >
-              Shop Floor
-            </NavLink>
-            <NavLink
-              to="/crate"
-              className={({ isActive }) =>
-                `rounded-sm px-3 py-1.5 transition-colors ${isActive ? "bg-shop-oxblood text-shop-paper" : "text-muted-foreground hover:bg-white/5"}`
-              }
-            >
-              My Crate
-            </NavLink>
-          </nav>
+          <NavigationMenu>
+            <NavigationMenuList className="gap-1">
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  active={pathname === "/"}
+                  className={navLinkClassName}
+                  render={<Link to="/" />}
+                >
+                  Shop Floor
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  active={pathname.startsWith("/crate")}
+                  className={navLinkClassName}
+                  render={<Link to="/crate" />}
+                >
+                  My Crate
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
 
           <div className="ml-auto flex items-center gap-2">
             {session && (
