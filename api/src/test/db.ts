@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 import { join } from 'path';
 import * as schema from '../db/schema';
 
-const client = new PGlite();
+export const client = new PGlite();
 export const testDb = drizzle(client, { schema });
 
 export const ready = migrate(testDb, {
