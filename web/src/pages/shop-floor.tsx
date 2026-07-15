@@ -9,14 +9,15 @@ import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FIXTURE_ALBUMS } from "@/lib/boneyard-fixtures"
-import { Show } from "@/lib/control-flow"
+import { QueryErrorState } from "@/components/records/query-error-state"
+import { Switch, Match } from "@/lib/control-flow"
 import { RoleGate } from "@/lib/role-gate"
 
 export function ShopFloorPage() {
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
 
-  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useGetAlbumsInfinite(
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage, error } = useGetAlbumsInfinite(
     {},
     {
       query: {
@@ -76,25 +77,28 @@ export function ShopFloorPage() {
           </div>
         }
       >
-        <Show
-          when={filtered.length > 0}
-          fallback={
+        <Switch>
+          <Match when={error}>
+            <QueryErrorState message="Couldn't open the shop today." />
+          </Match>
+          <Match when={filtered.length === 0}>
             <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-shop-brass/30 py-16 text-center">
               <Disc3 className="size-8 text-shop-brass" />
               <p className="text-sm text-muted-foreground">
                 {query ? "Nothing in the crate matches that." : "The crate is empty. Be the first to shelve a record."}
               </p>
             </div>
-          }
-        >
-          <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {filtered.map((album) => (
-              <Link key={album.id} to={`/albums/${album.id}`} className="shelf-lip">
-                <VinylSleeve album={album} />
-              </Link>
-            ))}
-          </div>
-        </Show>
+          </Match>
+          <Match when={true}>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {filtered.map((album) => (
+                <Link key={album.id} to={`/albums/${album.id}`} className="shelf-lip">
+                  <VinylSleeve album={album} />
+                </Link>
+              ))}
+            </div>
+          </Match>
+        </Switch>
       </Skeleton>
 
       {!query && hasNextPage && (

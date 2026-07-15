@@ -25,6 +25,7 @@ import { ConfirmDeleteDialog } from "@/components/records/confirm-delete-dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FIXTURE_ALBUM_DETAIL } from "@/lib/boneyard-fixtures"
+import { QueryErrorState } from "@/components/records/query-error-state"
 import { Show } from "@/lib/control-flow"
 import { RoleGate } from "@/lib/role-gate"
 
@@ -34,7 +35,7 @@ export function AlbumPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: album } = useGetAlbumsById(albumId, {
+  const { data: album, isPending, error } = useGetAlbumsById(albumId, {
     query: { meta: { errorMessage: "Couldn't find that record." } },
   })
   const scrobble = usePostScrobbles()
@@ -85,7 +86,6 @@ export function AlbumPage() {
     })
   }
 
-  const loading = !album
   const shown = album ?? FIXTURE_ALBUM_DETAIL
 
   return (
@@ -97,18 +97,20 @@ export function AlbumPage() {
         <ArrowLeft className="size-3.5" /> Back to the shop floor
       </Link>
 
-      <Skeleton name="album-detail" loading={loading} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} />}>
-        <AlbumDetail
-          album={shown}
-          spinningId={spinningId}
-          onSpin={handleSpin}
-          onEditAlbum={() => setEditAlbumOpen(true)}
-          onAddTrack={() => setTrackDialog({ open: true })}
-          onDeleteAlbum={() => setDeleteAlbumOpen(true)}
-          onEditTrack={(track) => setTrackDialog({ open: true, track })}
-          onDeleteTrack={setDeleteTrack}
-        />
-      </Skeleton>
+      <Show when={!error} fallback={<QueryErrorState message="Couldn't find that record." />}>
+        <Skeleton name="album-detail" loading={isPending} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} />}>
+          <AlbumDetail
+            album={shown}
+            spinningId={spinningId}
+            onSpin={handleSpin}
+            onEditAlbum={() => setEditAlbumOpen(true)}
+            onAddTrack={() => setTrackDialog({ open: true })}
+            onDeleteAlbum={() => setDeleteAlbumOpen(true)}
+            onEditTrack={(track) => setTrackDialog({ open: true, track })}
+            onDeleteTrack={setDeleteTrack}
+          />
+        </Skeleton>
+      </Show>
 
       <AlbumFormDialog open={editAlbumOpen} onOpenChange={setEditAlbumOpen} album={shown} />
 

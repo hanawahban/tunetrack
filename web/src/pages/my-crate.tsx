@@ -14,6 +14,7 @@ import { ListeningCalendar } from "@/components/records/listening-calendar"
 import { ListeningTrendChart, TopGenresChart } from "@/components/records/listening-charts"
 import { DateRangeFilter } from "@/components/records/date-range-filter"
 import { FIXTURE_SCROBBLES, FIXTURE_TOP_ARTISTS } from "@/lib/boneyard-fixtures"
+import { QueryErrorState } from "@/components/records/query-error-state"
 import { Show, Switch, Match } from "@/lib/control-flow"
 
 function timeAgo(iso: string) {
@@ -34,6 +35,7 @@ export function MyCratePage() {
     isFetchingNextPage: scrobblesFetchingNextPage,
     hasNextPage: hasNextScrobblesPage,
     fetchNextPage: fetchNextScrobblesPage,
+    error: scrobblesError,
   } = useGetScrobblesRecentInfinite(
     {},
     {
@@ -99,16 +101,19 @@ export function MyCratePage() {
               loading={scrobblesPending && scrobbles.length === 0}
               fixture={<RecentSpinsList scrobbles={FIXTURE_SCROBBLES} />}
             >
-              <Show
-                when={scrobbles.length > 0}
-                fallback={
+              <Switch>
+                <Match when={scrobblesError}>
+                  <QueryErrorState message="Couldn't pull your receipt." />
+                </Match>
+                <Match when={scrobbles.length === 0}>
                   <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
                     No spins logged yet. Open a record and hit play.
                   </p>
-                }
-              >
-                <RecentSpinsList scrobbles={scrobbles} />
-              </Show>
+                </Match>
+                <Match when={true}>
+                  <RecentSpinsList scrobbles={scrobbles} />
+                </Match>
+              </Switch>
             </Skeleton>
 
             <Switch>
