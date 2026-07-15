@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: tunetrack
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # not published to the host by default -- nothing outside the compose
+    # network needs to reach it. Add `ports: ["5432:5432"]` if you want a
+    # local psql/GUI client against it.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tunetrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # one-shot: applies drizzle migrations against a fresh DB, then exits.
+  # `api` won't start until this completes successfully (see depends_on below).
+  migrate:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/tunetrack
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: runtime
+    environment:
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      # what the browser actually sends as Origin -- the host-published port,
+      # not an in-network service name
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:5173}
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/tunetrack
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        # baked into the static bundle at build time -- also a host-reachable
+        # URL, since it's the browser (not another container) calling it
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - "5173:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

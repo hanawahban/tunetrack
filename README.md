@@ -17,16 +17,31 @@ A personal music tracking app, styled as a dim, warm used-record shop you dig th
 | `CURATOR` | Everything `LISTENER` can, plus create/edit/delete artists, albums, and tracks |
 | `ADMIN` | Everything `CURATOR` can, plus change any (non-admin) user's role (`PATCH /users/:id/role`) |
 
-## Prerequisites
+## Quickstart (Docker)
+
+No Bun/pnpm/Node needed on the host — just Docker:
+
+```bash
+docker compose up --build
+```
+
+Brings up Postgres, applies migrations (one-shot `migrate` service), then starts the API (`http://localhost:3000`) and web app (`http://localhost:5173`). First run seeds no data — see [Logging in](#logging-in) below for the seed script if you want the three test accounts; run it against the containerized DB with:
+
+```bash
+docker compose run --rm --entrypoint bun migrate src/db/seed.ts
+```
+
+Override any of `POSTGRES_PASSWORD`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `WEB_ORIGIN`, `VITE_API_URL` via a root `.env` file — see `docker-compose.yml` for defaults. Image build details, non-root/multi-stage conventions, and production deployment notes (secrets, CORS, migrations-per-deploy, reverse proxy, etc.) live in [`docs/deploy.md`](docs/deploy.md).
+
+## Local dev (no Docker)
+
+Prefer running things directly for tighter iteration? You'll need:
 
 - **Bun** (runs the API) — https://bun.sh
 - **Node.js 20+** (tested on 22) and **pnpm** — `corepack enable pnpm` if you don't have pnpm yet, or `npm i -g pnpm`
-- **PostgreSQL** — any of:
-  - a local Postgres instance
-  - a Postgres container (`docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=tunetrack -p 5432:5432 postgres`)
-  - a free hosted Postgres DB — prints a connection string you paste into `DATABASE_URL`
+- **PostgreSQL** — a local instance, `docker compose up postgres` from this repo, or a free hosted Postgres DB (prints a connection string you paste into `DATABASE_URL`)
 
-## Setup (from a fresh clone)
+### Setup (from a fresh clone)
 
 ```bash
 pnpm install

@@ -1,0 +1,12 @@
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+**/dist
+**/*.tsbuildinfo
+.git
+.mint
+**/scratchpad
+web/src/lib/api/generated
+**/*.sqlite
+**/*.sqlite3
