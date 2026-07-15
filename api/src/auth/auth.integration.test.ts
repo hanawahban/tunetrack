@@ -13,7 +13,7 @@ describe('POST /auth/register', () => {
     const res = await register('new@test.com');
     expect(res.status).toBe(201);
     const body = await json<{ role: string; email: string; password?: string }>(res);
-    expect(body.role).toBe('INTENTIONALLY_BROKEN_FOR_CI_DEMO');
+    expect(body.role).toBe('LISTENER');
     expect(body.email).toBe('new@test.com');
     expect(body.password).toBeUndefined();
   });
