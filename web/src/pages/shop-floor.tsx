@@ -30,6 +30,11 @@ export function ShopFloorPage() {
 
   const albums = React.useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data])
 
+  // ponytail: filters only the pages already fetched into `albums` -- an album
+  // on a cursor page the user hasn't scrolled to yet is invisible to search.
+  // GET /albums has no `q` param (unlike GET /artists, since #17), so a real
+  // fix means adding server-side search there too; that's backend scope, not
+  // this pass's frontend-hooks cleanup.
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return albums
