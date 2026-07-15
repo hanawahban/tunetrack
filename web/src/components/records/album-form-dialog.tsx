@@ -47,6 +47,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
+import { Switch, Match } from "@/lib/control-flow"
 
 const albumFormSchema = z
   .object({
@@ -295,7 +296,11 @@ export function AlbumFormDialog({
 
             <DialogFooter>
               <Button type="submit" variant="oxblood" disabled={saving}>
-                {saving ? "Saving…" : album ? "Save changes" : "Add to the crate"}
+                <Switch>
+                  <Match when={saving}>Saving…</Match>
+                  <Match when={album}>Save changes</Match>
+                  <Match when={true}>Add to the crate</Match>
+                </Switch>
               </Button>
             </DialogFooter>
           </form>

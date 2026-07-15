@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { Switch, Match } from "@/lib/control-flow"
 
 const trackFormSchema = z.object({
   title: z.string().trim().min(1, "Every track needs a title."),
@@ -98,7 +99,11 @@ export function TrackFormDialog({
             />
             <DialogFooter>
               <Button type="submit" variant="oxblood" disabled={saving}>
-                {saving ? "Saving…" : track ? "Save changes" : "Add track"}
+                <Switch>
+                  <Match when={saving}>Saving…</Match>
+                  <Match when={track}>Save changes</Match>
+                  <Match when={true}>Add track</Match>
+                </Switch>
               </Button>
             </DialogFooter>
           </form>

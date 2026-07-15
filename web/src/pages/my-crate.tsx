@@ -16,6 +16,7 @@ import { ListeningCalendar } from "@/components/records/listening-calendar"
 import { ListeningTrendChart, TopGenresChart } from "@/components/records/listening-charts"
 import { DateRangeFilter } from "@/components/records/date-range-filter"
 import { FIXTURE_SCROBBLES, FIXTURE_TOP_ARTISTS } from "@/lib/boneyard-fixtures"
+import { Show, Switch, Match } from "@/lib/control-flow"
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
@@ -99,33 +100,37 @@ export function MyCratePage() {
               loading={scrobblesPending && scrobbles.length === 0}
               fixture={<RecentSpinsList scrobbles={FIXTURE_SCROBBLES} />}
             >
-              {scrobbles.length === 0 ? (
-                <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
-                  No spins logged yet. Open a record and hit play.
-                </p>
-              ) : (
+              <Show
+                when={scrobbles.length > 0}
+                fallback={
+                  <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
+                    No spins logged yet. Open a record and hit play.
+                  </p>
+                }
+              >
                 <RecentSpinsList scrobbles={scrobbles} />
-              )}
+              </Show>
             </Skeleton>
 
-            {scrobbles.length > 0 && scrobblesPage?.nextCursor && (
-              <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => setCursor(scrobblesPage.nextCursor!)}
-                  disabled={scrobblesFetching}
-                  className="text-catalog text-[0.65rem] tracking-widest text-shop-ink/50 hover:text-shop-ink disabled:opacity-50"
-                >
-                  {scrobblesFetching ? "loading…" : "* * * load more * * *"}
-                </button>
-              </div>
-            )}
-
-            {scrobbles.length > 0 && !scrobblesPage?.nextCursor && (
-              <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center text-[0.65rem] tracking-widest text-shop-ink/40">
-                * * * END OF RECEIPT * * *
-              </div>
-            )}
+            <Switch>
+              <Match when={scrobbles.length > 0 && scrobblesPage?.nextCursor}>
+                <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setCursor(scrobblesPage!.nextCursor!)}
+                    disabled={scrobblesFetching}
+                    className="text-catalog text-[0.65rem] tracking-widest text-shop-ink/50 hover:text-shop-ink disabled:opacity-50"
+                  >
+                    {scrobblesFetching ? "loading…" : "* * * load more * * *"}
+                  </button>
+                </div>
+              </Match>
+              <Match when={scrobbles.length > 0}>
+                <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center text-[0.65rem] tracking-widest text-shop-ink/40">
+                  * * * END OF RECEIPT * * *
+                </div>
+              </Match>
+            </Switch>
           </div>
         </div>
 
@@ -144,13 +149,16 @@ export function MyCratePage() {
               loading={topArtistsPending}
               fixture={<TopArtistsList artists={FIXTURE_TOP_ARTISTS} maxPlays={42} />}
             >
-              {topArtists?.length === 0 ? (
-                <p className="font-heading text-sm text-shop-paper/70">
-                  Nothing on the charts yet — start spinning.
-                </p>
-              ) : (
+              <Show
+                when={topArtists && topArtists.length > 0}
+                fallback={
+                  <p className="font-heading text-sm text-shop-paper/70">
+                    Nothing on the charts yet — start spinning.
+                  </p>
+                }
+              >
                 <TopArtistsList artists={topArtists ?? []} maxPlays={maxPlays} />
-              )}
+              </Show>
             </Skeleton>
           </div>
         </div>
