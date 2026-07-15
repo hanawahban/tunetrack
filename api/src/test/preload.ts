@@ -1,6 +1,8 @@
-import { mock } from 'bun:test';
-import { testDb, ready } from './db';
+import { afterAll, mock } from 'bun:test';
+import { client, testDb, ready } from './db';
 
 await ready;
 
 mock.module('../db', () => ({ db: testDb }));
+
+afterAll(() => client.close());
