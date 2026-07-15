@@ -1,5 +1,7 @@
 # TuneTrack
 
+[![CI](https://github.com/hanawahban/tunetrack/actions/workflows/ci.yml/badge.svg)](https://github.com/hanawahban/tunetrack/actions/workflows/ci.yml)
+
 A personal music tracking app, styled as a dim, warm used-record shop you dig through rather than a streaming dashboard. Browse a catalog of artists/albums/tracks, log plays, and check your own listening stats.
 
 ## Stack
@@ -32,6 +34,17 @@ docker compose run --rm --entrypoint bun migrate src/db/seed.ts
 ```
 
 Override any of `POSTGRES_PASSWORD`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `WEB_ORIGIN`, `VITE_API_URL` via a root `.env` file — see `docker-compose.yml` for defaults. Image build details, non-root/multi-stage conventions, and production deployment notes (secrets, CORS, migrations-per-deploy, reverse proxy, etc.) live in [`docs/deploy.md`](docs/deploy.md).
+
+### Pull the published images
+
+Every merge to `master` publishes both images to GHCR, tagged with the commit SHA and `latest`:
+
+```bash
+docker pull ghcr.io/hanawahban/tunetrack-api:latest
+docker pull ghcr.io/hanawahban/tunetrack-web:latest
+```
+
+`docker compose up --build` (above) builds these same images locally from source — pulling is for running a known-good build without cloning/building yourself (e.g. trying a specific commit via its SHA tag).
 
 ## Local dev (no Docker)
 
