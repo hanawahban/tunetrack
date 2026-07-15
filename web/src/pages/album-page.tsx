@@ -35,7 +35,9 @@ export function AlbumPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: album, error } = useGetAlbumsById(albumId)
+  const { data: album } = useGetAlbumsById(albumId, {
+    query: { meta: { errorMessage: "Couldn't find that record." } },
+  })
   const scrobble = usePostScrobbles()
   const removeAlbum = useDeleteAlbumsById()
   const removeTrack = useDeleteTracksById()
@@ -47,12 +49,6 @@ export function AlbumPage() {
     open: false,
   })
   const [deleteTrack, setDeleteTrack] = React.useState<TrackResponseDto | null>(null)
-
-  React.useEffect(() => {
-    if (error) {
-      toast.error(error instanceof ApiError ? error.message : "Couldn't find that record.")
-    }
-  }, [error])
 
   async function handleSpin(track: TrackResponseDto) {
     setSpinningId(track.id)

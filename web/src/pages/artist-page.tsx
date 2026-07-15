@@ -1,24 +1,17 @@
-import * as React from "react"
 import { Link, useParams } from "react-router-dom"
 import { ArrowLeft, Disc3 } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
-import { toast } from "sonner"
 
 import { useGetArtistsById } from "@/lib/api/generated/artists/artists"
-import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { FIXTURE_ARTIST_DETAIL } from "@/lib/boneyard-fixtures"
 
 export function ArtistPage() {
   const { id } = useParams<{ id: string }>()
   const artistId = Number(id)
-  const { data: artist, error } = useGetArtistsById(artistId)
-
-  React.useEffect(() => {
-    if (error) {
-      toast.error(error instanceof ApiError ? error.message : "Couldn't find that artist.")
-    }
-  }, [error])
+  const { data: artist } = useGetArtistsById(artistId, {
+    query: { meta: { errorMessage: "Couldn't find that artist." } },
+  })
 
   const loading = !artist
   const shown = artist ?? FIXTURE_ARTIST_DETAIL

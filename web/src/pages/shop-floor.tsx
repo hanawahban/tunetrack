@@ -2,10 +2,8 @@ import * as React from "react"
 import { Link } from "react-router-dom"
 import { Search, Plus, Disc3 } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
-import { toast } from "sonner"
 
 import { useGetAlbumsInfinite } from "@/lib/api/generated/albums/albums"
-import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { Input } from "@/components/ui/input"
@@ -18,19 +16,18 @@ export function ShopFloorPage() {
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
 
-  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
-    useGetAlbumsInfinite(
-      {},
-      { query: { initialPageParam: undefined, getNextPageParam: (last) => last.nextCursor ?? undefined } },
-    )
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useGetAlbumsInfinite(
+    {},
+    {
+      query: {
+        initialPageParam: undefined,
+        getNextPageParam: (last) => last.nextCursor ?? undefined,
+        meta: { errorMessage: "Couldn't open the shop today." },
+      },
+    },
+  )
 
   const albums = React.useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data])
-
-  React.useEffect(() => {
-    if (error) {
-      toast.error(error instanceof ApiError ? error.message : "Couldn't open the shop today.")
-    }
-  }, [error])
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase()

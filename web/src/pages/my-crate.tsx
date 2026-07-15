@@ -4,12 +4,10 @@ import { endOfDay, startOfDay } from "date-fns"
 import type { DateRange } from "react-day-picker"
 import { CalendarDays, Disc3, LineChart, Receipt } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
-import { toast } from "sonner"
 
 import { useGetScrobblesRecentInfinite } from "@/lib/api/generated/scrobbles/scrobbles"
 import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
-import { ApiError } from "@/lib/api-error"
 import { useScrobbleHistory } from "@/lib/hooks/use-scrobble-history"
 import { Progress } from "@/components/ui/progress"
 import { ListeningCalendar } from "@/components/records/listening-calendar"
@@ -36,12 +34,19 @@ export function MyCratePage() {
     isFetchingNextPage: scrobblesFetchingNextPage,
     hasNextPage: hasNextScrobblesPage,
     fetchNextPage: fetchNextScrobblesPage,
-    error: scrobblesError,
   } = useGetScrobblesRecentInfinite(
     {},
-    { query: { initialPageParam: undefined, getNextPageParam: (last) => last.nextCursor ?? undefined } },
+    {
+      query: {
+        initialPageParam: undefined,
+        getNextPageParam: (last) => last.nextCursor ?? undefined,
+        meta: { errorMessage: "Couldn't pull your receipt." },
+      },
+    },
   )
-  const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
+  const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists({
+    query: { meta: { errorMessage: "Couldn't load the charts." } },
+  })
   const { data: scrobbleHistory, isPending: historyPending } = useScrobbleHistory()
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined)
 
@@ -60,14 +65,6 @@ export function MyCratePage() {
       return playedAt >= from && playedAt <= to
     })
   }, [scrobbleHistory, dateRange])
-
-  React.useEffect(() => {
-    if (scrobblesError) {
-      toast.error(
-        scrobblesError instanceof ApiError ? scrobblesError.message : "Couldn't pull your receipt.",
-      )
-    }
-  }, [scrobblesError])
 
   const maxPlays = Math.max(1, ...(topArtists ?? []).map((a) => a.playCount))
 
