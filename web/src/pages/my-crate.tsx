@@ -6,7 +6,7 @@ import { CalendarDays, Disc3, LineChart, Receipt } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
 import { toast } from "sonner"
 
-import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
+import { useGetScrobblesRecentInfinite } from "@/lib/api/generated/scrobbles/scrobbles"
 import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
@@ -30,18 +30,25 @@ function timeAgo(iso: string) {
 }
 
 export function MyCratePage() {
-  const [cursor, setCursor] = React.useState<string | undefined>(undefined)
-  const [scrobbles, setScrobbles] = React.useState<GetScrobblesRecent200OneItemsItem[]>([])
-
   const {
-    data: scrobblesPage,
+    data: scrobblesData,
     isPending: scrobblesPending,
-    isFetching: scrobblesFetching,
+    isFetchingNextPage: scrobblesFetchingNextPage,
+    hasNextPage: hasNextScrobblesPage,
+    fetchNextPage: fetchNextScrobblesPage,
     error: scrobblesError,
-  } = useGetScrobblesRecent({ cursor })
+  } = useGetScrobblesRecentInfinite(
+    {},
+    { query: { initialPageParam: undefined, getNextPageParam: (last) => last.nextCursor ?? undefined } },
+  )
   const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
   const { data: scrobbleHistory, isPending: historyPending } = useScrobbleHistory()
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined)
+
+  const scrobbles = React.useMemo(
+    () => scrobblesData?.pages.flatMap((p) => p.items) ?? [],
+    [scrobblesData],
+  )
 
   const filteredHistory = React.useMemo(() => {
     if (!scrobbleHistory) return []
@@ -53,11 +60,6 @@ export function MyCratePage() {
       return playedAt >= from && playedAt <= to
     })
   }, [scrobbleHistory, dateRange])
-
-  React.useEffect(() => {
-    if (!scrobblesPage) return
-    setScrobbles((prev) => (cursor ? [...prev, ...scrobblesPage.items] : scrobblesPage.items))
-  }, [scrobblesPage, cursor])
 
   React.useEffect(() => {
     if (scrobblesError) {
@@ -113,15 +115,15 @@ export function MyCratePage() {
             </Skeleton>
 
             <Switch>
-              <Match when={scrobbles.length > 0 && scrobblesPage?.nextCursor}>
+              <Match when={scrobbles.length > 0 && hasNextScrobblesPage}>
                 <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
                   <button
                     type="button"
-                    onClick={() => setCursor(scrobblesPage!.nextCursor!)}
-                    disabled={scrobblesFetching}
+                    onClick={() => fetchNextScrobblesPage()}
+                    disabled={scrobblesFetchingNextPage}
                     className="text-catalog text-[0.65rem] tracking-widest text-shop-ink/50 hover:text-shop-ink disabled:opacity-50"
                   >
-                    {scrobblesFetching ? "loading…" : "* * * load more * * *"}
+                    {scrobblesFetchingNextPage ? "loading…" : "* * * load more * * *"}
                   </button>
                 </div>
               </Match>

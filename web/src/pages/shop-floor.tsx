@@ -4,8 +4,7 @@ import { Search, Plus, Disc3 } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
 import { toast } from "sonner"
 
-import { useGetAlbums } from "@/lib/api/generated/albums/albums"
-import type { AlbumResponseDto } from "@/lib/api-types"
+import { useGetAlbumsInfinite } from "@/lib/api/generated/albums/albums"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
@@ -18,15 +17,14 @@ import { RoleGate } from "@/lib/role-gate"
 export function ShopFloorPage() {
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
-  const [cursor, setCursor] = React.useState<string | undefined>(undefined)
-  const [albums, setAlbums] = React.useState<AlbumResponseDto[]>([])
 
-  const { data, isPending, isFetching, error } = useGetAlbums({ cursor })
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage, error } =
+    useGetAlbumsInfinite(
+      {},
+      { query: { initialPageParam: undefined, getNextPageParam: (last) => last.nextCursor ?? undefined } },
+    )
 
-  React.useEffect(() => {
-    if (!data) return
-    setAlbums((prev) => (cursor ? [...prev, ...data.items] : data.items))
-  }, [data, cursor])
+  const albums = React.useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data])
 
   React.useEffect(() => {
     if (error) {
@@ -102,10 +100,10 @@ export function ShopFloorPage() {
         </Show>
       </Skeleton>
 
-      {!query && data?.nextCursor && (
+      {!query && hasNextPage && (
         <div className="flex justify-center">
-          <Button variant="outline" onClick={() => setCursor(data.nextCursor!)} disabled={isFetching}>
-            {isFetching ? "Loading…" : "Load more"}
+          <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+            {isFetchingNextPage ? "Loading…" : "Load more"}
           </Button>
         </div>
       )}
