@@ -1,5 +1,5 @@
 name: ci
-
+# no dependency/lockfile change in this edit -- pnpm-store cache should hit
 on:
   pull_request:
   push:
