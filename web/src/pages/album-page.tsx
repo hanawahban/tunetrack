@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Plus, Pencil, Trash2, Disc3 } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
 
 import {
   useGetAlbumsById,
@@ -18,7 +17,7 @@ import {
 } from "@/lib/api/generated/scrobbles/scrobbles"
 import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
 import type { AlbumResponseDto, TrackResponseDto } from "@/lib/api-types"
-import { ApiError } from "@/lib/api-error"
+import { withToast } from "@/lib/mutation-toast"
 import { CdTrackRow } from "@/components/records/cd-disc"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { TrackFormDialog } from "@/components/records/track-form-dialog"
@@ -52,39 +51,38 @@ export function AlbumPage() {
 
   async function handleSpin(track: TrackResponseDto) {
     setSpinningId(track.id)
-    try {
-      await scrobble.mutateAsync({ data: { trackId: track.id } })
-      queryClient.invalidateQueries({ queryKey: getGetScrobblesRecentQueryKey() })
-      queryClient.invalidateQueries({ queryKey: getGetStatsTopArtistsQueryKey() })
-      toast.success(`Spinning "${track.title}"`)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "The needle skipped.")
-    } finally {
-      setTimeout(() => setSpinningId(null), 1600)
-    }
+    await withToast(() => scrobble.mutateAsync({ data: { trackId: track.id } }), {
+      success: `Spinning "${track.title}"`,
+      error: "The needle skipped.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetScrobblesRecentQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getGetStatsTopArtistsQueryKey() })
+      },
+    })
+    setTimeout(() => setSpinningId(null), 1600)
   }
 
   async function handleDeleteAlbum() {
-    try {
-      await removeAlbum.mutateAsync({ id: albumId })
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
-      toast.success("Pulled from the crate.")
-      navigate("/")
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't remove that record.")
-    }
+    await withToast(() => removeAlbum.mutateAsync({ id: albumId }), {
+      success: "Pulled from the crate.",
+      error: "Couldn't remove that record.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
+        navigate("/")
+      },
+    })
   }
 
   async function handleDeleteTrack() {
     if (!deleteTrack) return
-    try {
-      await removeTrack.mutateAsync({ id: deleteTrack.id })
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
-      toast.success("Track lifted off the record.")
-      setDeleteTrack(null)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't remove that track.")
-    }
+    await withToast(() => removeTrack.mutateAsync({ id: deleteTrack.id }), {
+      success: "Track lifted off the record.",
+      error: "Couldn't remove that track.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
+        setDeleteTrack(null)
+      },
+    })
   }
 
   const loading = !album
