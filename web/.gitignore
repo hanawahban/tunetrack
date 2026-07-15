@@ -1,0 +1,7 @@
+
+# mint local state
+.mint/tasks/
+.mint/worktrees/
+.mint/sessions/
+.mint/verdicts/
+scratchpad/
