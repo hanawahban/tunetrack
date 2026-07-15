@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { toast } from "sonner"
 import { ChevronsUpDownIcon } from "lucide-react"
 
 import {
@@ -18,7 +17,7 @@ import {
   getGetArtistsQueryKey,
 } from "@/lib/api/generated/artists/artists"
 import type { AlbumResponseDto } from "@/lib/api-types"
-import { ApiError } from "@/lib/api-error"
+import { withToast, skipToast } from "@/lib/mutation-toast"
 import {
   Dialog,
   DialogContent,
@@ -68,12 +67,10 @@ export function AlbumFormDialog({
   open,
   onOpenChange,
   album,
-  defaultArtistId,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   album?: AlbumResponseDto
-  defaultArtistId?: number
 }) {
   const queryClient = useQueryClient()
   const createArtist = usePostArtists()
@@ -113,51 +110,51 @@ export function AlbumFormDialog({
         title: album?.title ?? "",
         releaseYear: album?.releaseYear?.toString() ?? "",
         imageUrl: album?.imageUrl ?? "",
-        artistId: (album?.artistId ?? defaultArtistId)?.toString() ?? "",
+        artistId: album?.artistId?.toString() ?? "",
         newArtistName: "",
       })
-      // ponytail: no call site passes defaultArtistId today, so there's no name to seed for
-      // that case -- the trigger falls back to the placeholder until the user re-picks.
       setSelectedArtistName(album?.artist?.name)
       setArtistSearch("")
       setDebouncedArtistSearch("")
     }
-  }, [open, album, defaultArtistId, form])
+  }, [open, album, form])
 
   const saving = createArtist.isPending || createAlbum.isPending || updateAlbum.isPending
 
   async function onSubmit(values: AlbumFormValues) {
-    try {
-      let artistId = values.artistId ? Number(values.artistId) : undefined
+    await withToast(
+      async () => {
+        let artistId = values.artistId ? Number(values.artistId) : undefined
 
-      if (!artistId && values.newArtistName) {
-        const created = await createArtist.mutateAsync({ data: { name: values.newArtistName } })
-        queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() })
-        artistId = created.id
-      }
+        if (!artistId && values.newArtistName) {
+          const created = await createArtist.mutateAsync({ data: { name: values.newArtistName } })
+          queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() })
+          artistId = created.id
+        }
 
-      if (!artistId) return
+        if (!artistId) return skipToast
 
-      const dto = {
-        title: values.title,
-        releaseYear: values.releaseYear ? Number(values.releaseYear) : undefined,
-        imageUrl: values.imageUrl || undefined,
-        artistId,
-      }
+        const dto = {
+          title: values.title,
+          releaseYear: values.releaseYear ? Number(values.releaseYear) : undefined,
+          imageUrl: values.imageUrl || undefined,
+          artistId,
+        }
 
-      if (album) {
-        await updateAlbum.mutateAsync({ id: album.id, data: dto })
-        queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(album.id) })
-      } else {
-        await createAlbum.mutateAsync({ data: dto })
-      }
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
-
-      toast.success(album ? "Sleeve updated." : "New record shelved.")
-      onOpenChange(false)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't save that record.")
-    }
+        if (album) {
+          await updateAlbum.mutateAsync({ id: album.id, data: dto })
+          queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(album.id) })
+        } else {
+          await createAlbum.mutateAsync({ data: dto })
+        }
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
+      },
+      {
+        success: album ? "Sleeve updated." : "New record shelved.",
+        error: "Couldn't save that record.",
+        onSuccess: () => onOpenChange(false),
+      },
+    )
   }
 
   return (

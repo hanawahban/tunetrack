@@ -4,18 +4,17 @@ import { endOfDay, startOfDay } from "date-fns"
 import type { DateRange } from "react-day-picker"
 import { CalendarDays, Disc3, LineChart, Receipt } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
-import { toast } from "sonner"
 
-import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
+import { useGetScrobblesRecentInfinite } from "@/lib/api/generated/scrobbles/scrobbles"
 import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
-import { ApiError } from "@/lib/api-error"
 import { useScrobbleHistory } from "@/lib/hooks/use-scrobble-history"
 import { Progress } from "@/components/ui/progress"
 import { ListeningCalendar } from "@/components/records/listening-calendar"
 import { ListeningTrendChart, TopGenresChart } from "@/components/records/listening-charts"
 import { DateRangeFilter } from "@/components/records/date-range-filter"
 import { FIXTURE_SCROBBLES, FIXTURE_TOP_ARTISTS } from "@/lib/boneyard-fixtures"
+import { QueryErrorState } from "@/components/records/query-error-state"
 import { Show, Switch, Match } from "@/lib/control-flow"
 
 function timeAgo(iso: string) {
@@ -30,18 +29,33 @@ function timeAgo(iso: string) {
 }
 
 export function MyCratePage() {
-  const [cursor, setCursor] = React.useState<string | undefined>(undefined)
-  const [scrobbles, setScrobbles] = React.useState<GetScrobblesRecent200OneItemsItem[]>([])
-
   const {
-    data: scrobblesPage,
+    data: scrobblesData,
     isPending: scrobblesPending,
-    isFetching: scrobblesFetching,
+    isFetchingNextPage: scrobblesFetchingNextPage,
+    hasNextPage: hasNextScrobblesPage,
+    fetchNextPage: fetchNextScrobblesPage,
     error: scrobblesError,
-  } = useGetScrobblesRecent({ cursor })
-  const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists()
+  } = useGetScrobblesRecentInfinite(
+    {},
+    {
+      query: {
+        initialPageParam: undefined,
+        getNextPageParam: (last) => last.nextCursor ?? undefined,
+        meta: { errorMessage: "Couldn't pull your receipt." },
+      },
+    },
+  )
+  const { data: topArtists, isPending: topArtistsPending } = useGetStatsTopArtists({
+    query: { meta: { errorMessage: "Couldn't load the charts." } },
+  })
   const { data: scrobbleHistory, isPending: historyPending } = useScrobbleHistory()
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined)
+
+  const scrobbles = React.useMemo(
+    () => scrobblesData?.pages.flatMap((p) => p.items) ?? [],
+    [scrobblesData],
+  )
 
   const filteredHistory = React.useMemo(() => {
     if (!scrobbleHistory) return []
@@ -53,19 +67,6 @@ export function MyCratePage() {
       return playedAt >= from && playedAt <= to
     })
   }, [scrobbleHistory, dateRange])
-
-  React.useEffect(() => {
-    if (!scrobblesPage) return
-    setScrobbles((prev) => (cursor ? [...prev, ...scrobblesPage.items] : scrobblesPage.items))
-  }, [scrobblesPage, cursor])
-
-  React.useEffect(() => {
-    if (scrobblesError) {
-      toast.error(
-        scrobblesError instanceof ApiError ? scrobblesError.message : "Couldn't pull your receipt.",
-      )
-    }
-  }, [scrobblesError])
 
   const maxPlays = Math.max(1, ...(topArtists ?? []).map((a) => a.playCount))
 
@@ -100,28 +101,31 @@ export function MyCratePage() {
               loading={scrobblesPending && scrobbles.length === 0}
               fixture={<RecentSpinsList scrobbles={FIXTURE_SCROBBLES} />}
             >
-              <Show
-                when={scrobbles.length > 0}
-                fallback={
+              <Switch>
+                <Match when={scrobblesError}>
+                  <QueryErrorState message="Couldn't pull your receipt." />
+                </Match>
+                <Match when={scrobbles.length === 0}>
                   <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
                     No spins logged yet. Open a record and hit play.
                   </p>
-                }
-              >
-                <RecentSpinsList scrobbles={scrobbles} />
-              </Show>
+                </Match>
+                <Match when={true}>
+                  <RecentSpinsList scrobbles={scrobbles} />
+                </Match>
+              </Switch>
             </Skeleton>
 
             <Switch>
-              <Match when={scrobbles.length > 0 && scrobblesPage?.nextCursor}>
+              <Match when={scrobbles.length > 0 && hasNextScrobblesPage}>
                 <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
                   <button
                     type="button"
-                    onClick={() => setCursor(scrobblesPage!.nextCursor!)}
-                    disabled={scrobblesFetching}
+                    onClick={() => fetchNextScrobblesPage()}
+                    disabled={scrobblesFetchingNextPage}
                     className="text-catalog text-[0.65rem] tracking-widest text-shop-ink/50 hover:text-shop-ink disabled:opacity-50"
                   >
-                    {scrobblesFetching ? "loading…" : "* * * load more * * *"}
+                    {scrobblesFetchingNextPage ? "loading…" : "* * * load more * * *"}
                   </button>
                 </div>
               </Match>

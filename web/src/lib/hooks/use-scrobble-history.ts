@@ -23,5 +23,6 @@ export function useScrobbleHistory() {
   return useQuery({
     queryKey: ["scrobbleHistory"],
     queryFn: fetchAllScrobbles,
+    meta: { errorMessage: "Couldn't load your listening history." },
   })
 }

@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Plus, Pencil, Trash2, Disc3 } from "lucide-react"
 import { Skeleton } from "boneyard-js/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
 
 import {
   useGetAlbumsById,
@@ -18,14 +17,16 @@ import {
 } from "@/lib/api/generated/scrobbles/scrobbles"
 import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
 import type { AlbumResponseDto, TrackResponseDto } from "@/lib/api-types"
-import { ApiError } from "@/lib/api-error"
+import { withToast } from "@/lib/mutation-toast"
 import { CdTrackRow } from "@/components/records/cd-disc"
+import { VinylDisc } from "@/components/records/vinyl-disc"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { TrackFormDialog } from "@/components/records/track-form-dialog"
 import { ConfirmDeleteDialog } from "@/components/records/confirm-delete-dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FIXTURE_ALBUM_DETAIL } from "@/lib/boneyard-fixtures"
+import { QueryErrorState } from "@/components/records/query-error-state"
 import { Show } from "@/lib/control-flow"
 import { RoleGate } from "@/lib/role-gate"
 
@@ -35,7 +36,9 @@ export function AlbumPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: album, error } = useGetAlbumsById(albumId)
+  const { data: album, isPending, error } = useGetAlbumsById(albumId, {
+    query: { meta: { errorMessage: "Couldn't find that record." } },
+  })
   const scrobble = usePostScrobbles()
   const removeAlbum = useDeleteAlbumsById()
   const removeTrack = useDeleteTracksById()
@@ -48,50 +51,42 @@ export function AlbumPage() {
   })
   const [deleteTrack, setDeleteTrack] = React.useState<TrackResponseDto | null>(null)
 
-  React.useEffect(() => {
-    if (error) {
-      toast.error(error instanceof ApiError ? error.message : "Couldn't find that record.")
-    }
-  }, [error])
-
   async function handleSpin(track: TrackResponseDto) {
     setSpinningId(track.id)
-    try {
-      await scrobble.mutateAsync({ data: { trackId: track.id } })
-      queryClient.invalidateQueries({ queryKey: getGetScrobblesRecentQueryKey() })
-      queryClient.invalidateQueries({ queryKey: getGetStatsTopArtistsQueryKey() })
-      toast.success(`Spinning "${track.title}"`)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "The needle skipped.")
-    } finally {
-      setTimeout(() => setSpinningId(null), 1600)
-    }
+    await withToast(() => scrobble.mutateAsync({ data: { trackId: track.id } }), {
+      success: `Spinning "${track.title}"`,
+      error: "The needle skipped.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetScrobblesRecentQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getGetStatsTopArtistsQueryKey() })
+      },
+    })
+    setTimeout(() => setSpinningId(null), 1600)
   }
 
   async function handleDeleteAlbum() {
-    try {
-      await removeAlbum.mutateAsync({ id: albumId })
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
-      toast.success("Pulled from the crate.")
-      navigate("/")
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't remove that record.")
-    }
+    await withToast(() => removeAlbum.mutateAsync({ id: albumId }), {
+      success: "Pulled from the crate.",
+      error: "Couldn't remove that record.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsQueryKey() })
+        navigate("/")
+      },
+    })
   }
 
   async function handleDeleteTrack() {
     if (!deleteTrack) return
-    try {
-      await removeTrack.mutateAsync({ id: deleteTrack.id })
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
-      toast.success("Track lifted off the record.")
-      setDeleteTrack(null)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't remove that track.")
-    }
+    await withToast(() => removeTrack.mutateAsync({ id: deleteTrack.id }), {
+      success: "Track lifted off the record.",
+      error: "Couldn't remove that track.",
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
+        setDeleteTrack(null)
+      },
+    })
   }
 
-  const loading = !album
   const shown = album ?? FIXTURE_ALBUM_DETAIL
 
   return (
@@ -103,18 +98,20 @@ export function AlbumPage() {
         <ArrowLeft className="size-3.5" /> Back to the shop floor
       </Link>
 
-      <Skeleton name="album-detail" loading={loading} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} />}>
-        <AlbumDetail
-          album={shown}
-          spinningId={spinningId}
-          onSpin={handleSpin}
-          onEditAlbum={() => setEditAlbumOpen(true)}
-          onAddTrack={() => setTrackDialog({ open: true })}
-          onDeleteAlbum={() => setDeleteAlbumOpen(true)}
-          onEditTrack={(track) => setTrackDialog({ open: true, track })}
-          onDeleteTrack={setDeleteTrack}
-        />
-      </Skeleton>
+      <Show when={!error} fallback={<QueryErrorState message="Couldn't find that record." />}>
+        <Skeleton name="album-detail" loading={isPending} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} />}>
+          <AlbumDetail
+            album={shown}
+            spinningId={spinningId}
+            onSpin={handleSpin}
+            onEditAlbum={() => setEditAlbumOpen(true)}
+            onAddTrack={() => setTrackDialog({ open: true })}
+            onDeleteAlbum={() => setDeleteAlbumOpen(true)}
+            onEditTrack={(track) => setTrackDialog({ open: true, track })}
+            onDeleteTrack={setDeleteTrack}
+          />
+        </Skeleton>
+      </Show>
 
       <AlbumFormDialog open={editAlbumOpen} onOpenChange={setEditAlbumOpen} album={shown} />
 
@@ -172,20 +169,12 @@ function AlbumDetail({
         <Show
           when={album.imageUrl}
           fallback={
-            <div
-              className="absolute top-[6%] left-[10%] size-[88%] rounded-full bg-shop-vinyl shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
-              style={{
-                backgroundImage:
-                  "repeating-radial-gradient(circle at 50% 50%, var(--shop-vinyl-groove) 0px, var(--shop-vinyl-groove) 1px, transparent 2px, transparent 4px)",
-              }}
-            >
-              <div className="absolute top-1/2 left-1/2 flex size-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-shop-amber text-center">
-                <span className="font-heading text-xs leading-tight font-semibold text-shop-ink px-2 line-clamp-2">
-                  {album.title}
-                </span>
-                <span className="size-2 rounded-full bg-shop-ink/70" />
-              </div>
-            </div>
+            <VinylDisc
+              label={album.title}
+              className="absolute top-[6%] left-[10%] size-[88%] shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
+              labelClassName="size-[34%]"
+              textClassName="text-xs px-2"
+            />
           }
         >
           {(url) => (

@@ -1,6 +1,8 @@
+import type { UserResponseDtoRole } from "@/lib/api-types"
+
 export type JwtClaims = {
   sub: number
-  role: "ADMIN" | "CURATOR" | "LISTENER"
+  role: UserResponseDtoRole
   iat?: number
   exp?: number
 }

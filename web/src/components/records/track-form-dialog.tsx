@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { toast } from "sonner"
 
 import {
   usePostTracks,
@@ -11,7 +10,7 @@ import {
 } from "@/lib/api/generated/tracks/tracks"
 import { getGetAlbumsByIdQueryKey } from "@/lib/api/generated/albums/albums"
 import type { TrackResponseDto } from "@/lib/api-types"
-import { ApiError } from "@/lib/api-error"
+import { withToast } from "@/lib/mutation-toast"
 import {
   Dialog,
   DialogContent,
@@ -58,19 +57,21 @@ export function TrackFormDialog({
   const saving = createTrack.isPending || updateTrack.isPending
 
   async function onSubmit(values: TrackFormValues) {
-    try {
-      if (track) {
-        await updateTrack.mutateAsync({ id: track.id, data: { title: values.title } })
-      } else {
-        await createTrack.mutateAsync({ data: { title: values.title, albumId } })
-      }
-      queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
-
-      toast.success(track ? "Track relabeled." : "Track pressed onto the record.")
-      onOpenChange(false)
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Couldn't save that track.")
-    }
+    await withToast(
+      async () => {
+        if (track) {
+          await updateTrack.mutateAsync({ id: track.id, data: { title: values.title } })
+        } else {
+          await createTrack.mutateAsync({ data: { title: values.title, albumId } })
+        }
+        queryClient.invalidateQueries({ queryKey: getGetAlbumsByIdQueryKey(albumId) })
+      },
+      {
+        success: track ? "Track relabeled." : "Track pressed onto the record.",
+        error: "Couldn't save that track.",
+        onSuccess: () => onOpenChange(false),
+      },
+    )
   }
 
   return (

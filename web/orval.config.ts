@@ -27,6 +27,8 @@ export default defineConfig({
           // AbortSignal as its `options` (typed RequestInit) — doesn't type-check. Disabling
           // signal-based cancellation avoids fighting the codegen for a minor perf nicety.
           signal: false,
+          useInfinite: true,
+          useInfiniteQueryParam: "cursor",
         },
       },
     },
