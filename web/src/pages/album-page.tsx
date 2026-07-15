@@ -19,6 +19,7 @@ import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
 import type { AlbumResponseDto, TrackResponseDto } from "@/lib/api-types"
 import { withToast } from "@/lib/mutation-toast"
 import { CdTrackRow } from "@/components/records/cd-disc"
+import { VinylDisc } from "@/components/records/vinyl-disc"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { TrackFormDialog } from "@/components/records/track-form-dialog"
 import { ConfirmDeleteDialog } from "@/components/records/confirm-delete-dialog"
@@ -168,20 +169,12 @@ function AlbumDetail({
         <Show
           when={album.imageUrl}
           fallback={
-            <div
-              className="absolute top-[6%] left-[10%] size-[88%] rounded-full bg-shop-vinyl shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
-              style={{
-                backgroundImage:
-                  "repeating-radial-gradient(circle at 50% 50%, var(--shop-vinyl-groove) 0px, var(--shop-vinyl-groove) 1px, transparent 2px, transparent 4px)",
-              }}
-            >
-              <div className="absolute top-1/2 left-1/2 flex size-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-shop-amber text-center">
-                <span className="font-heading text-xs leading-tight font-semibold text-shop-ink px-2 line-clamp-2">
-                  {album.title}
-                </span>
-                <span className="size-2 rounded-full bg-shop-ink/70" />
-              </div>
-            </div>
+            <VinylDisc
+              label={album.title}
+              className="absolute top-[6%] left-[10%] size-[88%] shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
+              labelClassName="size-[34%]"
+              textClassName="text-xs px-2"
+            />
           }
         >
           {(url) => (

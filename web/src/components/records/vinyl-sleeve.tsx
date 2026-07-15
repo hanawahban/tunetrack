@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import type { AlbumResponseDto } from "@/lib/api-types"
+import { VinylDisc } from "@/components/records/vinyl-disc"
 
 // A small, restrained set of worn-sleeve tints so the crate doesn't look uniform,
 // the way a real shelf of used records never has two identical sleeves.
@@ -32,20 +33,13 @@ export function VinylSleeve({
       )}
     >
       {/* the disc — sits behind the sleeve, slides out on hover */}
-      <div
-        className="absolute inset-0 z-0 rounded-full bg-shop-vinyl shadow-[0_4px_20px_rgba(0,0,0,0.6)] transition-transform duration-500 ease-out group-hover:translate-x-[18%] group-hover:-translate-y-[10%] group-hover:rotate-12"
-        style={{
-          backgroundImage: `repeating-radial-gradient(circle at 50% 50%, var(--shop-vinyl-groove) 0px, var(--shop-vinyl-groove) 1px, transparent 2px, transparent 4px)`,
-        }}
-        aria-hidden
-      >
-        <div className="absolute top-1/2 left-1/2 flex size-[38%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-shop-amber text-center">
-          <span className="font-heading text-[0.55rem] leading-none font-semibold text-shop-ink line-clamp-2 px-1">
-            {album.artist?.name ?? "Unknown"}
-          </span>
-          <span className="mt-0.5 size-1.5 rounded-full bg-shop-ink/70" />
-        </div>
-      </div>
+      <VinylDisc
+        label={album.artist?.name ?? "Unknown"}
+        className="absolute inset-0 z-0 shadow-[0_4px_20px_rgba(0,0,0,0.6)] transition-transform duration-500 ease-out group-hover:translate-x-[18%] group-hover:-translate-y-[10%] group-hover:rotate-12"
+        labelClassName="size-[38%]"
+        textClassName="text-[0.55rem] px-1"
+        dotClassName="size-1.5"
+      />
 
       {/* the sleeve — the printed jacket, in front. Tint always sits underneath as a
           fallback fill so a broken/blocked cover image never leaves a transparent hole. */}
