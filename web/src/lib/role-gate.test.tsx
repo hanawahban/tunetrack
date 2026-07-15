@@ -9,7 +9,7 @@ vi.mock("@/lib/auth-context", () => ({
 
 function mockSession(role: "ADMIN" | "CURATOR" | "LISTENER" | null) {
   vi.mocked(useAuth).mockReturnValue({
-    session: role ? { userId: 1, role, email: null } : null,
+    session: role ? { role } : null,
   } as ReturnType<typeof useAuth>)
 }
 

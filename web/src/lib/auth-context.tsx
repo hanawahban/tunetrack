@@ -5,9 +5,7 @@ import { auth } from "@/lib/auth-token"
 import { decodeJwt, isExpired } from "@/lib/jwt"
 
 type Session = {
-  userId: number
   role: UserResponseDtoRole
-  email: string | null
 }
 
 type AuthContextValue = {
@@ -24,7 +22,7 @@ function sessionFromToken(token: string | null): Session | null {
   if (!token) return null
   const claims = decodeJwt(token)
   if (!claims || isExpired(claims)) return null
-  return { userId: claims.sub, role: claims.role, email: null }
+  return { role: claims.role }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -38,8 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string) => {
       const { access_token } = await loginMutation.mutateAsync({ data: { email, password } })
       auth.setToken(access_token)
-      const next = sessionFromToken(access_token)
-      setSession(next ? { ...next, email } : null)
+      setSession(sessionFromToken(access_token))
     },
     [loginMutation],
   )
@@ -49,8 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await registerMutation.mutateAsync({ data: { email, password } })
       const { access_token } = await loginMutation.mutateAsync({ data: { email, password } })
       auth.setToken(access_token)
-      const next = sessionFromToken(access_token)
-      setSession(next ? { ...next, email } : null)
+      setSession(sessionFromToken(access_token))
     },
     [loginMutation, registerMutation],
   )
