@@ -18,7 +18,6 @@ import {
 } from "@/lib/api/generated/scrobbles/scrobbles"
 import { getGetStatsTopArtistsQueryKey } from "@/lib/api/generated/stats/stats"
 import type { AlbumResponseDto, TrackResponseDto } from "@/lib/api-types"
-import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { CdTrackRow } from "@/components/records/cd-disc"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
@@ -28,12 +27,12 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FIXTURE_ALBUM_DETAIL } from "@/lib/boneyard-fixtures"
 import { Show } from "@/lib/control-flow"
+import { RoleGate } from "@/lib/role-gate"
 
 export function AlbumPage() {
   const { id } = useParams<{ id: string }>()
   const albumId = Number(id)
   const navigate = useNavigate()
-  const { canCurate } = useAuth()
   const queryClient = useQueryClient()
 
   const { data: album, error } = useGetAlbumsById(albumId)
@@ -104,10 +103,9 @@ export function AlbumPage() {
         <ArrowLeft className="size-3.5" /> Back to the shop floor
       </Link>
 
-      <Skeleton name="album-detail" loading={loading} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} canCurate={false} />}>
+      <Skeleton name="album-detail" loading={loading} fixture={<AlbumDetail album={FIXTURE_ALBUM_DETAIL} />}>
         <AlbumDetail
           album={shown}
-          canCurate={canCurate}
           spinningId={spinningId}
           onSpin={handleSpin}
           onEditAlbum={() => setEditAlbumOpen(true)}
@@ -148,7 +146,6 @@ export function AlbumPage() {
 
 function AlbumDetail({
   album,
-  canCurate,
   spinningId,
   onSpin,
   onEditAlbum,
@@ -158,7 +155,6 @@ function AlbumDetail({
   onDeleteTrack,
 }: {
   album: AlbumResponseDto
-  canCurate: boolean
   spinningId?: number | null
   onSpin?: (track: TrackResponseDto) => void
   onEditAlbum?: () => void
@@ -219,7 +215,7 @@ function AlbumDetail({
           )}
         </div>
 
-        {canCurate && (
+        <RoleGate roles={["ADMIN", "CURATOR"]}>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={onEditAlbum}>
               <Pencil /> Edit sleeve
@@ -236,7 +232,7 @@ function AlbumDetail({
               <Trash2 /> Remove record
             </Button>
           </div>
-        )}
+        </RoleGate>
 
         <div className="space-y-1.5">
           {tracks.length === 0 && (
@@ -252,7 +248,6 @@ function AlbumDetail({
               index={i}
               spinning={spinningId === track.id}
               onSpin={() => onSpin?.(track)}
-              canCurate={canCurate}
               onEdit={() => onEditTrack?.(track)}
               onDelete={() => onDeleteTrack?.(track)}
             />

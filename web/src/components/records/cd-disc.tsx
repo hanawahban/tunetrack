@@ -2,6 +2,7 @@ import { Disc3, Play, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { TrackResponseDto } from "@/lib/api-types"
+import { RoleGate } from "@/lib/role-gate"
 
 export function CdTrackRow({
   track,
@@ -9,7 +10,6 @@ export function CdTrackRow({
   onSpin,
   onEdit,
   onDelete,
-  canCurate,
   spinning,
 }: {
   track: TrackResponseDto
@@ -17,7 +17,6 @@ export function CdTrackRow({
   onSpin: () => void
   onEdit?: () => void
   onDelete?: () => void
-  canCurate?: boolean
   spinning?: boolean
 }) {
   return (
@@ -45,22 +44,20 @@ export function CdTrackRow({
         <Button variant="ghost" size="icon" title="Spin this track" onClick={onSpin}>
           {spinning ? <Disc3 className="animate-spin" /> : <Play />}
         </Button>
-        {canCurate && (
-          <>
-            <Button variant="ghost" size="icon" title="Edit track" onClick={onEdit}>
-              <Pencil />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Remove track"
-              className="hover:text-destructive"
-              onClick={onDelete}
-            >
-              <Trash2 />
-            </Button>
-          </>
-        )}
+        <RoleGate roles={["ADMIN", "CURATOR"]}>
+          <Button variant="ghost" size="icon" title="Edit track" onClick={onEdit}>
+            <Pencil />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Remove track"
+            className="hover:text-destructive"
+            onClick={onDelete}
+          >
+            <Trash2 />
+          </Button>
+        </RoleGate>
       </div>
     </div>
   )
