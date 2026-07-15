@@ -27,6 +27,7 @@ import { ConfirmDeleteDialog } from "@/components/records/confirm-delete-dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { FIXTURE_ALBUM_DETAIL } from "@/lib/boneyard-fixtures"
+import { Show } from "@/lib/control-flow"
 
 export function AlbumPage() {
   const { id } = useParams<{ id: string }>()
@@ -172,27 +173,32 @@ function AlbumDetail({
     <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
       {/* opened sleeve, disc pulled all the way out */}
       <div className="relative mx-auto aspect-square w-full max-w-md">
-        {album.imageUrl ? (
-          <div
-            className="absolute inset-0 rounded-[3px] border border-black/30 bg-shop-oxblood-dim bg-cover bg-center shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
-            style={{ backgroundImage: `url(${album.imageUrl})` }}
-          />
-        ) : (
-          <div
-            className="absolute top-[6%] left-[10%] size-[88%] rounded-full bg-shop-vinyl shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
-            style={{
-              backgroundImage:
-                "repeating-radial-gradient(circle at 50% 50%, var(--shop-vinyl-groove) 0px, var(--shop-vinyl-groove) 1px, transparent 2px, transparent 4px)",
-            }}
-          >
-            <div className="absolute top-1/2 left-1/2 flex size-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-shop-amber text-center">
-              <span className="font-heading text-xs leading-tight font-semibold text-shop-ink px-2 line-clamp-2">
-                {album.title}
-              </span>
-              <span className="size-2 rounded-full bg-shop-ink/70" />
+        <Show
+          when={album.imageUrl}
+          fallback={
+            <div
+              className="absolute top-[6%] left-[10%] size-[88%] rounded-full bg-shop-vinyl shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
+              style={{
+                backgroundImage:
+                  "repeating-radial-gradient(circle at 50% 50%, var(--shop-vinyl-groove) 0px, var(--shop-vinyl-groove) 1px, transparent 2px, transparent 4px)",
+              }}
+            >
+              <div className="absolute top-1/2 left-1/2 flex size-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-full bg-shop-amber text-center">
+                <span className="font-heading text-xs leading-tight font-semibold text-shop-ink px-2 line-clamp-2">
+                  {album.title}
+                </span>
+                <span className="size-2 rounded-full bg-shop-ink/70" />
+              </div>
             </div>
-          </div>
-        )}
+          }
+        >
+          {(url) => (
+            <div
+              className="absolute inset-0 rounded-[3px] border border-black/30 bg-shop-oxblood-dim bg-cover bg-center shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
+              style={{ backgroundImage: `url(${url})` }}
+            />
+          )}
+        </Show>
         <div className="absolute inset-0 -z-10 -translate-x-[8%] translate-y-[4%] -rotate-3 rounded-[3px] border border-black/30 bg-shop-oxblood-dim shadow-[2px_2px_14px_rgba(0,0,0,0.5)]" />
       </div>
 

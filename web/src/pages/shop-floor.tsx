@@ -13,6 +13,7 @@ import { AlbumFormDialog } from "@/components/records/album-form-dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FIXTURE_ALBUMS } from "@/lib/boneyard-fixtures"
+import { Show } from "@/lib/control-flow"
 
 export function ShopFloorPage() {
   const { canCurate } = useAuth()
@@ -81,14 +82,17 @@ export function ShopFloorPage() {
           </div>
         }
       >
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-shop-brass/30 py-16 text-center">
-            <Disc3 className="size-8 text-shop-brass" />
-            <p className="text-sm text-muted-foreground">
-              {query ? "Nothing in the crate matches that." : "The crate is empty. Be the first to shelve a record."}
-            </p>
-          </div>
-        ) : (
+        <Show
+          when={filtered.length > 0}
+          fallback={
+            <div className="flex flex-col items-center gap-2 rounded-md border border-dashed border-shop-brass/30 py-16 text-center">
+              <Disc3 className="size-8 text-shop-brass" />
+              <p className="text-sm text-muted-foreground">
+                {query ? "Nothing in the crate matches that." : "The crate is empty. Be the first to shelve a record."}
+              </p>
+            </div>
+          }
+        >
           <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {filtered.map((album) => (
               <Link key={album.id} to={`/albums/${album.id}`} className="shelf-lip">
@@ -96,7 +100,7 @@ export function ShopFloorPage() {
               </Link>
             ))}
           </div>
-        )}
+        </Show>
       </Skeleton>
 
       {!query && data?.nextCursor && (

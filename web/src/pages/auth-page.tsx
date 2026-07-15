@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Switch, Match } from "@/lib/control-flow"
 
 const authFormSchema = z.object({
   email: z.string().trim().email("Enter a valid email."),
@@ -119,11 +120,11 @@ export function AuthPage() {
                   )}
                 />
                 <Button type="submit" variant="oxblood" className="w-full" disabled={isLoading}>
-                  {isLoading
-                    ? "One moment…"
-                    : mode === "login"
-                      ? "Step inside"
-                      : "Punch my card"}
+                  <Switch>
+                    <Match when={isLoading}>One moment…</Match>
+                    <Match when={mode === "login"}>Step inside</Match>
+                    <Match when={true}>Punch my card</Match>
+                  </Switch>
                 </Button>
               </form>
             </Form>
