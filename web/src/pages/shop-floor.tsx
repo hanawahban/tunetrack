@@ -6,7 +6,6 @@ import { toast } from "sonner"
 
 import { useGetAlbums } from "@/lib/api/generated/albums/albums"
 import type { AlbumResponseDto } from "@/lib/api-types"
-import { useAuth } from "@/lib/auth-context"
 import { ApiError } from "@/lib/api-error"
 import { VinylSleeve } from "@/components/records/vinyl-sleeve"
 import { AlbumFormDialog } from "@/components/records/album-form-dialog"
@@ -14,9 +13,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FIXTURE_ALBUMS } from "@/lib/boneyard-fixtures"
 import { Show } from "@/lib/control-flow"
+import { RoleGate } from "@/lib/role-gate"
 
 export function ShopFloorPage() {
-  const { canCurate } = useAuth()
   const [query, setQuery] = React.useState("")
   const [formOpen, setFormOpen] = React.useState(false)
   const [cursor, setCursor] = React.useState<string | undefined>(undefined)
@@ -54,11 +53,11 @@ export function ShopFloorPage() {
             Every tune in the crate. Dig in.
           </p>
         </div>
-        {canCurate && (
+        <RoleGate roles={["ADMIN", "CURATOR"]}>
           <Button variant="oxblood" onClick={() => setFormOpen(true)}>
             <Plus /> Shelve a record
           </Button>
-        )}
+        </RoleGate>
       </div>
 
       <div className="relative max-w-sm">

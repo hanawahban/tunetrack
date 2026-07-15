@@ -16,7 +16,6 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   logout: () => void
-  canCurate: boolean
 }
 
 const AuthContext = React.createContext<AuthContextValue | null>(null)
@@ -67,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
-    canCurate: session?.role === "ADMIN" || session?.role === "CURATOR",
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
