@@ -12,7 +12,12 @@ import { MyCratePage } from "@/pages/my-crate"
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { session } = useAuth()
-  if (!session) return <Navigate to="/login" replace />
+  // boneyard's Vite plugin sets this before it visits a route headlessly to
+  // capture skeleton bones -- every route here is gated, so without this the
+  // capture browser always bounces to /login and never mounts the real page.
+  const boneyardCapture =
+    typeof window !== "undefined" && (window as { __BONEYARD_BUILD?: boolean }).__BONEYARD_BUILD
+  if (!session && !boneyardCapture) return <Navigate to="/login" replace />
   return <>{children}</>
 }
 

@@ -1,0 +1,7 @@
+{
+  "out": "./src/bones",
+  "color": "oklch(1 0 0 / 0.08)",
+  "darkColor": "oklch(1 0 0 / 0.08)",
+  "animate": "pulse",
+  "speed": "1.8s"
+}

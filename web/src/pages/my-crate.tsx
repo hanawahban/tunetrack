@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { endOfDay, startOfDay } from "date-fns"
 import type { DateRange } from "react-day-picker"
 import { CalendarDays, Disc3, LineChart, Receipt } from "lucide-react"
+import { Skeleton } from "boneyard-js/react"
 import { toast } from "sonner"
 
 import { useGetScrobblesRecent } from "@/lib/api/generated/scrobbles/scrobbles"
@@ -10,11 +11,11 @@ import { useGetStatsTopArtists } from "@/lib/api/generated/stats/stats"
 import type { GetScrobblesRecent200OneItemsItem } from "@/lib/api/generated/model"
 import { ApiError } from "@/lib/api-error"
 import { useScrobbleHistory } from "@/lib/hooks/use-scrobble-history"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
 import { ListeningCalendar } from "@/components/records/listening-calendar"
 import { ListeningTrendChart, TopGenresChart } from "@/components/records/listening-charts"
 import { DateRangeFilter } from "@/components/records/date-range-filter"
+import { FIXTURE_SCROBBLES, FIXTURE_TOP_ARTISTS } from "@/lib/boneyard-fixtures"
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
@@ -93,42 +94,19 @@ export function MyCratePage() {
                 "repeating-linear-gradient(180deg, transparent 0 27px, oklch(0 0 0 / 0.05) 27px 28px)",
             }}
           >
-            {scrobblesPending && scrobbles.length === 0 && (
-              <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-6 w-full bg-black/10" />
-                ))}
-              </div>
-            )}
-
-            {!scrobblesPending && scrobbles.length === 0 && (
-              <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
-                No spins logged yet. Open a record and hit play.
-              </p>
-            )}
-
-            {scrobbles.map((s) => (
-              <div
-                key={s.id}
-                className="text-catalog flex items-center justify-between gap-3 py-1 text-sm leading-7"
-              >
-                <span className="min-w-0 truncate">
-                  {s.track?.title ?? "Unknown track"}
-                  {s.track?.album?.artist && (
-                    <>
-                      {" — "}
-                      <Link
-                        to={`/artists/${s.track.album.artist.id}`}
-                        className="text-shop-oxblood hover:underline"
-                      >
-                        {s.track.album.artist.name}
-                      </Link>
-                    </>
-                  )}
-                </span>
-                <span className="shrink-0 text-shop-ink/50">{timeAgo(s.playedAt)}</span>
-              </div>
-            ))}
+            <Skeleton
+              name="recent-spins-list"
+              loading={scrobblesPending && scrobbles.length === 0}
+              fixture={<RecentSpinsList scrobbles={FIXTURE_SCROBBLES} />}
+            >
+              {scrobbles.length === 0 ? (
+                <p className="text-catalog py-6 text-center text-sm text-shop-ink/60">
+                  No spins logged yet. Open a record and hit play.
+                </p>
+              ) : (
+                <RecentSpinsList scrobbles={scrobbles} />
+              )}
+            </Skeleton>
 
             {scrobbles.length > 0 && scrobblesPage?.nextCursor && (
               <div className="mt-3 border-t border-dashed border-black/20 pt-2 text-center">
@@ -161,38 +139,19 @@ export function MyCratePage() {
           </div>
 
           <div className="rounded-sm border border-shop-brass/40 bg-[oklch(0.2_0.02_150)] p-5 shadow-lg">
-            {topArtistsPending && (
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-5 w-full" />
-                ))}
-              </div>
-            )}
-
-            {topArtists?.length === 0 && (
-              <p className="font-heading text-sm text-shop-paper/70">
-                Nothing on the charts yet — start spinning.
-              </p>
-            )}
-
-            <div className="space-y-3">
-              {topArtists?.map((a, i) => (
-                <div key={a.artistId} className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to={`/artists/${a.artistId}`}
-                      className="font-heading text-sm text-shop-paper hover:text-shop-amber"
-                    >
-                      {i + 1}. {a.name}
-                    </Link>
-                    <span className="text-catalog text-xs text-shop-paper/60">
-                      {a.playCount} play{a.playCount === 1 ? "" : "s"}
-                    </span>
-                  </div>
-                  <Progress value={(a.playCount / maxPlays) * 100} />
-                </div>
-              ))}
-            </div>
+            <Skeleton
+              name="top-artists-list"
+              loading={topArtistsPending}
+              fixture={<TopArtistsList artists={FIXTURE_TOP_ARTISTS} maxPlays={42} />}
+            >
+              {topArtists?.length === 0 ? (
+                <p className="font-heading text-sm text-shop-paper/70">
+                  Nothing on the charts yet — start spinning.
+                </p>
+              ) : (
+                <TopArtistsList artists={topArtists ?? []} maxPlays={maxPlays} />
+              )}
+            </Skeleton>
           </div>
         </div>
       </div>
@@ -213,11 +172,13 @@ export function MyCratePage() {
             </div>
 
             <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
-              {historyPending ? (
-                <Skeleton className="h-64 w-full" />
-              ) : (
+              <Skeleton
+                name="listening-calendar"
+                loading={historyPending}
+                fixture={<ListeningCalendar scrobbles={FIXTURE_SCROBBLES} />}
+              >
                 <ListeningCalendar scrobbles={filteredHistory} />
-              )}
+              </Skeleton>
             </div>
           </div>
 
@@ -231,11 +192,13 @@ export function MyCratePage() {
               </div>
 
               <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
-                {historyPending ? (
-                  <Skeleton className="h-48 w-full" />
-                ) : (
+                <Skeleton
+                  name="listening-trend-chart"
+                  loading={historyPending}
+                  fixture={<ListeningTrendChart scrobbles={FIXTURE_SCROBBLES} />}
+                >
                   <ListeningTrendChart scrobbles={filteredHistory} />
-                )}
+                </Skeleton>
               </div>
             </div>
 
@@ -248,16 +211,76 @@ export function MyCratePage() {
               </div>
 
               <div className="rounded-sm border border-shop-brass/25 bg-shop-vinyl p-3 shadow-lg">
-                {historyPending ? (
-                  <Skeleton className="h-48 w-full" />
-                ) : (
+                <Skeleton
+                  name="top-genres-chart"
+                  loading={historyPending}
+                  fixture={<TopGenresChart scrobbles={FIXTURE_SCROBBLES} />}
+                >
                   <TopGenresChart scrobbles={filteredHistory} />
-                )}
+                </Skeleton>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function RecentSpinsList({ scrobbles }: { scrobbles: GetScrobblesRecent200OneItemsItem[] }) {
+  return (
+    <>
+      {scrobbles.map((s) => (
+        <div
+          key={s.id}
+          className="text-catalog flex items-center justify-between gap-3 py-1 text-sm leading-7"
+        >
+          <span className="min-w-0 truncate">
+            {s.track?.title ?? "Unknown track"}
+            {s.track?.album?.artist && (
+              <>
+                {" — "}
+                <Link
+                  to={`/artists/${s.track.album.artist.id}`}
+                  className="text-shop-oxblood hover:underline"
+                >
+                  {s.track.album.artist.name}
+                </Link>
+              </>
+            )}
+          </span>
+          <span className="shrink-0 text-shop-ink/50">{timeAgo(s.playedAt)}</span>
+        </div>
+      ))}
+    </>
+  )
+}
+
+function TopArtistsList({
+  artists,
+  maxPlays,
+}: {
+  artists: { artistId: number; name: string; playCount: number }[]
+  maxPlays: number
+}) {
+  return (
+    <div className="space-y-3">
+      {artists.map((a, i) => (
+        <div key={a.artistId} className="space-y-1">
+          <div className="flex items-center justify-between">
+            <Link
+              to={`/artists/${a.artistId}`}
+              className="font-heading text-sm text-shop-paper hover:text-shop-amber"
+            >
+              {i + 1}. {a.name}
+            </Link>
+            <span className="text-catalog text-xs text-shop-paper/60">
+              {a.playCount} play{a.playCount === 1 ? "" : "s"}
+            </span>
+          </div>
+          <Progress value={(a.playCount / maxPlays) * 100} />
+        </div>
+      ))}
     </div>
   )
 }
