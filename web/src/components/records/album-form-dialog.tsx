@@ -67,12 +67,10 @@ export function AlbumFormDialog({
   open,
   onOpenChange,
   album,
-  defaultArtistId,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   album?: AlbumResponseDto
-  defaultArtistId?: number
 }) {
   const queryClient = useQueryClient()
   const createArtist = usePostArtists()
@@ -112,16 +110,14 @@ export function AlbumFormDialog({
         title: album?.title ?? "",
         releaseYear: album?.releaseYear?.toString() ?? "",
         imageUrl: album?.imageUrl ?? "",
-        artistId: (album?.artistId ?? defaultArtistId)?.toString() ?? "",
+        artistId: album?.artistId?.toString() ?? "",
         newArtistName: "",
       })
-      // ponytail: no call site passes defaultArtistId today, so there's no name to seed for
-      // that case -- the trigger falls back to the placeholder until the user re-picks.
       setSelectedArtistName(album?.artist?.name)
       setArtistSearch("")
       setDebouncedArtistSearch("")
     }
-  }, [open, album, defaultArtistId, form])
+  }, [open, album, form])
 
   const saving = createArtist.isPending || createAlbum.isPending || updateAlbum.isPending
 
